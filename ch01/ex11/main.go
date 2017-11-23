@@ -13,11 +13,33 @@ const (
 	file = "output.txt"
 )
 
+var done = make(chan struct{})
+
+func cancelled() bool {
+	select {
+	case <-done:
+		return true
+	default:
+		return false
+	}
+}
+
 func main() {
 	start := time.Now()
 	ch := make(chan string)
 	args := os.Args[1:]
 	outputString := ""
+	//入力検知でキャンセル伝える
+	go func() {
+		time.Sleep(3 * time.Second)
+		close(done)
+	}()
+	for {
+		select {
+		case <-done:
+			return
+		}
+	}
 	for _, url := range args {
 		go fetch(url, ch)
 	}
@@ -36,6 +58,9 @@ func main() {
 }
 
 func fetch(url string, ch chan<- string) {
+	if (cancelled()) {
+		return
+	}
 	start := time.Now()
 	resp, err := http.Get(url)
 	if err != nil {
