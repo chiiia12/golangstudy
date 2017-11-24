@@ -11,7 +11,6 @@ import (
 	"image/gif"
 	"math"
 	"math/rand"
-	"reflect"
 	"strconv"
 )
 
@@ -23,25 +22,31 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		queryParam := r.URL.Query()
 		fmt.Println(`queryParam.get("cycles")`, queryParam.Get("cycles"))
-		var f, _ = strconv.ParseFloat(queryParam.Get("cycles"), 64)
-		fmt.Println(`f is %q`, f);
-		fmt.Println(`f's type is %q`, reflect.TypeOf(f));
-		lissajous1(w, f)
+		var c, _ = strconv.ParseFloat(queryParam.Get("cycles"), 64)
+		var res, _ = strconv.ParseFloat(queryParam.Get("res"), 64)
+		var size, _ = strconv.Atoi(queryParam.Get("size"))
+		var nframes, _ = strconv.Atoi(queryParam.Get("nframes"))
+		var delay, _ = strconv.Atoi(queryParam.Get("delay"))
+
+		lissajous1(w, c, res, size, nframes, delay)
 	})
 	log.Fatal(http.ListenAndServe("localhost:8000", nil))
 }
 
-func lissajous1(out io.Writer, f float64) {
-	const (
-		res     = 0.001
-		size    = 100
-		nframes = 64
-		delay   = 8
-	)
+func lissajous1(out io.Writer, c float64,r float64, s int,n int,d int) {
+	//const (
+	//	res     = 0.001
+	//	size    = 100
+	//	nframes = 64
+	//	delay   = 8
+	//)
 
-	var cycles = f
+	var cycles =c
+	var res = r
+	var size = s
+	var  nframes =n
+	var delay = d
 
-	fmt.Println(`lissajous1's f is %q`, f)
 	freq := rand.Float64() * 3.0
 	anim := gif.GIF{LoopCount: nframes}
 	phase := 0.0
@@ -51,7 +56,7 @@ func lissajous1(out io.Writer, f float64) {
 		for t := 0.0; t < cycles*2*math.Pi; t += res {
 			x := math.Sin(t)
 			y := math.Sin(t*freq + phase)
-			img.SetColorIndex(size+int(x*size+0.5), size+int(y*size+0.5), uint8(math.Mod(t, 6))+1)
+			img.SetColorIndex(size+int(x*float64(size)+0.5), size+int(y*float64(size)+0.5), uint8(math.Mod(t, 6))+1)
 		}
 		phase += 0.1
 		anim.Delay = append(anim.Delay, delay)
