@@ -19,6 +19,9 @@ func fetchUrl(w io.Writer, urllist []string) {
 			fmt.Fprintf(os.Stderr, "fetch:%v\n", err)
 			os.Exit(1)
 		}
+		//別の名前使わなくて良いよ
+		//os.Exit(1)するときはプロセス死ぬのでcloseしなくてもよい
+
 		_, errcopy := io.Copy(w, resp.Body)
 		resp.Body.Close()
 		if errcopy != nil {

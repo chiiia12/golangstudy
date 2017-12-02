@@ -20,7 +20,12 @@ var palette = []color.Color{color.Black, color.RGBA{0xFF, 0x5E, 0x19, 0xff}, col
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if err:=r.ParseForm();err !=nil{
+			log.Print(err)
+		}
+		fmt.Println(`form is`,r.Form["cycles"])
 		queryParam := r.URL.Query()
+		fmt.Println(`cycles")`, queryParam.Get("cycles"))
 		fmt.Println(`queryParam.get("cycles")`, queryParam.Get("cycles"))
 		var c, _ = strconv.ParseFloat(queryParam.Get("cycles"), 64)
 		var res, _ = strconv.ParseFloat(queryParam.Get("res"), 64)

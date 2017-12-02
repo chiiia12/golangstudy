@@ -17,6 +17,8 @@ func echoArgs(args []string) string {
 	for index, val := range args[0:] {
 		s += strings.Join([]string{strconv.Itoa(index), val}, ":")
 		s += "\n"
+		//printf("%d: %s\n",index,arg)使うといいよ
+		//index ->慣習的にはiにしちゃっていい
 	}
 	return s
 }

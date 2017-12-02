@@ -7,11 +7,13 @@ import (
 )
 
 func BenchmarkPopCountEx05(b *testing.B) {
-	PopCountEx05(64)
+	for i := 0; i < b.N; i++ {
+		PopCountEx05(63)
+	}
 }
 func BenchmarkPopCount(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		popcount.PopCount(64)
+		popcount.PopCount(63)
 	}
 }
 func TestPopCount(t *testing.T) {
