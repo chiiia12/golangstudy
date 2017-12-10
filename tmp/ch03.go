@@ -1,7 +1,10 @@
 //3章の内容の試しコードとメモ
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"unicode/utf8"
+)
 
 func main() {
 	var hoge int8 = 1 //符号付き整数
@@ -25,11 +28,18 @@ func main() {
 	//fmt.Println("y is %v", y)
 
 	var f float32 = 16777216
-	fmt.Println("f is %v f+1 is %v",f,f+1)
+	fmt.Println("f is %v f+1 is %v", f, f+1)
 	fmt.Println(f == f+1)
 	//1.6777216e+07 1.6777216e+07
 	//TODO:内部的にどうなってるのか？切り捨てされているわけではないのか？
 
-
+	//utf8のdecode
+	s := "Hello,世界"
+	fmt.Printf("%d\n", len(s))
+	for i := 0; i < len(s); {
+		r, size := utf8.DecodeRuneInString(s[i:])
+		fmt.Printf("%d\t%c\t%d\n", i, r, size)
+		i += size
+	}
 
 }
