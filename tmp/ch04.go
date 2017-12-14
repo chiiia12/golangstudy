@@ -6,6 +6,8 @@ func main() {
 	s := []int{0, 1, 2, 3, 4, 5}
 	fmt.Printf("%p\n",s)//0xc420016210
 	fmt.Printf("%p\n",s[:2])//0xc420016210
+	fmt.Printf("%p\n",&s[1])
+	fmt.Printf("%p\n",s[1:2])
 	reverse(s[:2])
 	fmt.Println(s)
 	reverse(s[2:])
