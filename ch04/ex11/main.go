@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"gopl.io/ch4/github"
 	"net/http"
-	"net/url"
 	"io/ioutil"
-	"strings"
 	"time"
+	"bytes"
 )
 
 var (
@@ -37,16 +36,20 @@ func main() {
 
 func createIssue() {
 	fmt.Println("token is ", *token)
-	values := url.Values{}
-	values.Add("title", *title)
-	values.Add("body", "sample")
-	values.Add("label", "bug")
-	req, err := http.NewRequest("POST", createIssuesURL, strings.NewReader(values.Encode()))
+	strJson :=`{
+	"title": "Found a bug",
+		"body": "I'm having a problem with this.",
+		"name":"repo name",
+		"labels": [
+		]
+	}`
+
+	req, err := http.NewRequest("POST", createIssuesURL, bytes.NewBuffer([]byte(strJson)))
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer " + *token)
 
 	client := &http.Client{Timeout: time.Duration(10 * time.Second)}
