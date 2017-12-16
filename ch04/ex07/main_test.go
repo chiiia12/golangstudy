@@ -5,13 +5,20 @@ import (
 	"fmt"
 )
 
-func TestReverse(t *testing.T) {
+func TestReverse1(t *testing.T) {
 	str := []byte("あいうえお") //len 15
 	reversed := reverse(str)
 	fmt.Println(string(reversed))
-	for i, v := range reversed {
-		if v != str[len(str)-1-i] {
-			t.Errorf("reversed[i] and str[len(str])-i] is different actual reversed[i] is %v str[len(str)-i]is %v", v, str[len(str)-1-i])
-		}
+	if actual := string(reversed); actual != "おえういあ" {
+		t.Errorf("string(reversed) is おえういあ. actual is %v", actual)
+	}
+}
+
+func TestReverse2(t *testing.T) {
+	str := []byte("abcde") //len 15
+	reversed := reverse(str)
+	fmt.Println(string(reversed))
+	if actual := string(reversed); actual != "edcba" {
+		t.Errorf("string(reversed) is edcba. actual is %v", actual)
 	}
 }
