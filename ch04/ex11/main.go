@@ -6,12 +6,15 @@ import (
 	"gopl.io/ch4/github"
 	"net/http"
 	"net/url"
-	"os"
 	"io/ioutil"
+	"strings"
+	"time"
 )
 
 var (
 	command = flag.String("command", "", "option -command create/show/update")
+	token   = flag.String("token", "", "option -token is github generated token")
+	title   = flag.String("title", "", "option -title is issue's title")
 	//stringのポインタが返ってくる
 )
 
@@ -23,7 +26,7 @@ func main() {
 	flag.Parse()
 	switch *command {
 	case "create":
-		createIssue(os.Args[2])
+		createIssue()
 	case "show":
 		github.SearchIssues([]string{"repo:chiiia12/golangstudy", "is:open", "json", "decoder"})
 		fmt.Println("show command selected")
@@ -32,21 +35,35 @@ func main() {
 	}
 }
 
-func createIssue(title string) {
-	//TODO:headerにtokenとcontenttypeつける
-	//TODO:respをmappingするstructつくる
+func createIssue() {
+	fmt.Println("token is ", *token)
 	values := url.Values{}
-	values.Add("title", title)
-	resp, err := http.PostForm(createIssuesURL, values)
-	fmt.Println("postForm")
+	values.Add("title", *title)
+	values.Add("body", "sample")
+	values.Add("label", "bug")
+	req, err := http.NewRequest("POST", createIssuesURL, strings.NewReader(values.Encode()))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Authorization", "Bearer " + *token)
+
+	client := &http.Client{Timeout: time.Duration(10 * time.Second)}
+	resp, err := client.Do(req)
+
 	if err != nil {
 		fmt.Println("create is failed", err)
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		resp.Body.Close()
 		fmt.Errorf("status code is not OK.status is %v", resp.Status)
 	}
+	defer resp.Body.Close()
+
 	b, err := ioutil.ReadAll(resp.Body)
-	fmt.Println("create is success", b)
+	if err != nil {
+		fmt.Println("readAll is err", err)
+	}
+	fmt.Println("create is success", string(b))
 }
