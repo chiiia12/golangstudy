@@ -32,7 +32,6 @@ func main() {
 	in := bufio.NewReader(os.Stdin)
 	for {
 		r, n, err := in.ReadRune() // returns rune, nbytes, error
-		fmt.Printf("%v %q %v\n", string(r), n, err)
 		if err == io.EOF {
 			break
 		}
@@ -44,76 +43,66 @@ func main() {
 			invalid++
 			continue
 		}
-		if unicode.IsControl(r){
+		if unicode.IsControl(r) {
 			counts["control"]++
 			continue
 		}
-		if unicode.IsDigit(r){
+		if unicode.IsDigit(r) {
 			counts["digit"]++
 			continue
 		}
-		if unicode.IsGraphic(r){
+		if unicode.IsGraphic(r) {
 			counts["graphic"]++
 			continue
 		}
-		if unicode.IsLower(r){
+		if unicode.IsLower(r) {
 			counts["lower"]++
 			continue
 		}
-		if unicode.IsMark(r){
+		if unicode.IsMark(r) {
 			counts["mark"]++
 			continue
 		}
-		if unicode.IsLower(r){
+		if unicode.IsLower(r) {
 			counts["lower"]++
 			continue
 		}
-		if unicode.IsMark(r){
+		if unicode.IsMark(r) {
 			counts["mark"]++
 			continue
 		}
-		if unicode.IsNumber(r){
+		if unicode.IsNumber(r) {
 			counts["number"]++
 			continue
 		}
-		if unicode.IsPrint(r){
+		if unicode.IsPrint(r) {
 			counts["print"]++
 			continue
 		}
-		if unicode.IsPunct(r){
+		if unicode.IsPunct(r) {
 			counts["punct"]++
 			continue
 		}
-		if unicode.IsSpace(r){
+		if unicode.IsSpace(r) {
 			counts["space"]++
 			continue
 		}
-		if unicode.IsSymbol(r){
+		if unicode.IsSymbol(r) {
 			counts["symbol"]++
 			continue
 		}
-		if unicode.IsTitle(r){
+		if unicode.IsTitle(r) {
 			counts["title"]++
 			continue
 		}
-		if unicode.IsUpper(r){
+		if unicode.IsUpper(r) {
 			counts["upper"]++
 			continue
 		}
 
 		utflen[n]++
 	}
-	fmt.Printf("rune\tcount\n")
-	for c, n := range counts {
-		fmt.Printf("%q\t%d\n", c, n)
-	}
-	fmt.Print("\nlen\tcount\n")
-	for i, n := range utflen {
-		if i > 0 {
-			fmt.Printf("%d\t%d\n", i, n)
-		}
-	}
-	if invalid > 0 {
-		fmt.Printf("\n%d invalid UTF-8 characters\n", invalid)
+	for i, v := range counts {
+		fmt.Println(i, v)
 	}
 }
