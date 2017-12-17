@@ -16,6 +16,7 @@ var (
 	token   = flag.String("token", "", "option -token is github generated token")
 	title   = flag.String("title", "", "option -title is issue's title")
 	issue   = flag.String("issue", "", "option -issue is number of issue ")
+	body    = flag.String("body", "", "option -body is body of issue for update")
 	//stringのポインタが返ってくる
 )
 
@@ -24,7 +25,9 @@ const (
 )
 
 type UpdateParam struct {
-	state string
+	Title string `json:"title,omitempty"`
+	Body  string `json:"body,omitempty"`
+	State string `json:"state,omitempty"`
 }
 
 func main() {
@@ -35,16 +38,17 @@ func main() {
 	case "show":
 		github.SearchIssues([]string{"repo:chiiia12/golangstudy", "is:open", "json", "decoder"})
 	case "update":
-		fmt.Println("update command selected")
+		updateIssue(UpdateParam{Title: *title, Body: *body})
 	case "close":
-		updateIssue(UpdateParam{state: "close"})
+		updateIssue(UpdateParam{State: "close"})
 	}
 }
 func updateIssue(param UpdateParam) {
 	fmt.Println("token is ", *token)
 	strJson, _ := json.Marshal(param)
+	fmt.Println(param,string(strJson))
 
-	req, err := http.NewRequest("PATCH", createIssuesURL + "/issues/" + *issue, bytes.NewBuffer([]byte(strJson)))
+	req, err := http.NewRequest("PATCH", createIssuesURL + "/issues/" + *issue, bytes.NewBuffer(strJson))
 	if err != nil {
 		fmt.Println(err)
 		return
