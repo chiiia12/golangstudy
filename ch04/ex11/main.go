@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"time"
 	"bytes"
+	"encoding/json"
 )
 
 var (
@@ -22,6 +23,10 @@ const (
 	createIssuesURL = "https://api.github.com/repos/chiiia12/golangstudy"
 )
 
+type UpdateParam struct {
+	state string
+}
+
 func main() {
 	flag.Parse()
 	switch *command {
@@ -32,15 +37,12 @@ func main() {
 	case "update":
 		fmt.Println("update command selected")
 	case "close":
-		fmt.Println("close command selected")
-		closeIssue()
+		updateIssue(UpdateParam{state: "close"})
 	}
 }
-func closeIssue() {
+func updateIssue(param UpdateParam) {
 	fmt.Println("token is ", *token)
-	strJson := `{
-		"state":"close"
-	}`
+	strJson, _ := json.Marshal(param)
 
 	req, err := http.NewRequest("PATCH", createIssuesURL + "/issues/" + *issue, bytes.NewBuffer([]byte(strJson)))
 	if err != nil {
