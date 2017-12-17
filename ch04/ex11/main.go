@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"gopl.io/ch4/github"
 	"net/http"
 	"io/ioutil"
 	"time"
@@ -21,34 +20,53 @@ var (
 )
 
 const (
-	createIssuesURL = "https://api.github.com/repos/chiiia12/golangstudy"
+	createIssuesURL = "https://api.github.com/repos/chiiia12/golangstudy/issues/"
 )
 
-type UpdateParam struct {
+type Param struct {
 	Title string `json:"title,omitempty"`
 	Body  string `json:"body,omitempty"`
 	State string `json:"state,omitempty"`
+	Name string `json:"name,omitempty"`
 }
 
 func main() {
 	flag.Parse()
 	switch *command {
 	case "create":
-		createIssue()
+		createIssue(Param{Title:*title,Body:*body})
 	case "show":
-		github.SearchIssues([]string{"repo:chiiia12/golangstudy", "is:open", "json", "decoder"})
+		showIssue()
 	case "update":
-		updateIssue(UpdateParam{Title: *title, Body: *body})
+		updateIssue(Param{Title: *title, Body: *body})
 	case "close":
-		updateIssue(UpdateParam{State: "close"})
+		updateIssue(Param{State: "close"})
 	}
 }
-func updateIssue(param UpdateParam) {
+func showIssue() {
+	resp ,err:=http.Get("https://api.github.com/repos/chiiia12/golangstudy/issues")
+	if err != nil {
+		fmt.Println("create is failed", err)
+		return
+	}
+	if resp.StatusCode != http.StatusOK {
+		fmt.Errorf("status code is not OK.status is %v", resp.Status)
+	}
+	defer resp.Body.Close()
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("readAll is err", err)
+	}
+	fmt.Println("close is success", string(b))
+
+}
+func updateIssue(param Param) {
 	fmt.Println("token is ", *token)
 	strJson, _ := json.Marshal(param)
 	fmt.Println(param,string(strJson))
 
-	req, err := http.NewRequest("PATCH", createIssuesURL + "/issues/" + *issue, bytes.NewBuffer(strJson))
+	req, err := http.NewRequest("PATCH", createIssuesURL+ *issue, bytes.NewBuffer(strJson))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -76,17 +94,11 @@ func updateIssue(param UpdateParam) {
 
 }
 
-func createIssue() {
+func createIssue(param Param) {
 	fmt.Println("token is ", *token)
-	strJson := `{
-	"title": "Found a bug",
-		"body": "I'm having a problem with this.",
-		"name":"repo name",
-		"labels": [
-		]
-	}`
+	strJson, _ := json.Marshal(param)
 
-	req, err := http.NewRequest("POST", createIssuesURL, bytes.NewBuffer([]byte(strJson)))
+	req, err := http.NewRequest("POST", createIssuesURL, bytes.NewBuffer(strJson))
 	if err != nil {
 		fmt.Println(err)
 		return
