@@ -7,22 +7,29 @@ import (
 	"math/cmplx"
 	"image"
 	"image/png"
+	"strconv"
 )
 
+//http://localhost:8000/?x=-3&y=-3&mag=2
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
 			log.Print(err)
 		}
+
+		minx, _ := strconv.ParseFloat(r.Form["x"][0], 64)
+		miny, _ := strconv.ParseFloat(r.Form["y"][0], 64)
+		mag, _ := strconv.Atoi(r.Form["mag"][0])
 		const (
-			xmin, ymin, xmax, ymax = -2, -2, +2, +2
-			width, height          = 1024, 1024
+			xmax, ymax    = +2, +2
+			width, height = 1024, 1024
 		)
-		img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+		img := image.NewRGBA(image.Rect(0, 0, mag*width, mag*height))
 		for py := 0; py < height; py++ {
-			y := float64(py)/height*(ymax-ymin) + ymin
+			y := float64(py)/height*(ymax-miny) + miny
 			for px := 0; px < width; px++ {
-				x := float64(px)/width*(xmax-xmin) + xmin
+				x := float64(px)/width*(xmax-minx) + minx
 				z := complex(x, y)
 				// Image point (px, py) represents complex value z.
 				img.Set(px, py, mandelbrot(z))
