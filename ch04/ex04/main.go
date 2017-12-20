@@ -1,27 +1,20 @@
 package main
 
 func main() {
-	var s = []int{0, 1, 2, 3, 4, 5, 5, 6, 7, 8}
-	s = removeDepulicate(s, 0, 8)
+	s := []int{0, 1, 2, 3, 4, 5}
+	rotate(s, 2)
 }
-func removeDepulicate(s []int, first int, end int) []int {
-	tmp := -1
-	for i := first; i < end; i++ {
-		if tmp == s[i] {
-			s = remove(s, i)
-			tmp = -1
-			end--
+func rotate(s []int, d int) []int {
+	var l = len(s)
+	var tmp = 0
+
+	for i := 0; i < d; i++ {
+		tmp = s[0]
+		for j := 0; j < l-1; j++ {
+			s[j] = s[j+1]
 		}
-		tmp = s[i]
+		s[l-1] = tmp
 	}
 	return s
 }
 
-func remove(slice []int, i int) []int {
-	slice[i] = slice[len(slice)-1]
-	return slice[:len(slice)-1]
-}
-
-func toPtr(ints []int) *[]int {
-	return &ints
-}
