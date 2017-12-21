@@ -4,7 +4,6 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"math/cmplx"
 	"os"
 	"math/big"
 )
@@ -36,14 +35,14 @@ func main() {
 }
 
 func mandelbrot(z ComplexFloat) color.Color {
-	const iterations = 200
+	const iterations = 64
 	const contrast = 15
 	const absVal = 2
 	var absValSq big.Float
 	absValSq.SetInt64(absVal * absVal)
 	var v ComplexFloat
 	for n := uint8(0); n < iterations; n++ {
-		var aa, ab, bb, abab, c, d, res big.Float
+		var aa, ab, bb,res big.Float
 		//v = v*v + z
 		//v*v
 		//(a+bi)(a+bi)=a^2+2abi-b^2
@@ -52,39 +51,22 @@ func mandelbrot(z ComplexFloat) color.Color {
 		bb.Mul(&v.im, &v.im)
 		//v*v+z
 		//(a+bi)(a+bi)+(c+di)=(a^2+b^2+c)+(2ab+c)i
-		c = z.re
-		c.Add(&aa, &bb)
+		v.re.Sub(&aa,&bb)
+		v.im.Add(&ab,&ab)
 
-		abab.Sub(&ab, &ab)
-		d.Add(&z.im, &abab)
-		res.Add(&aa, &bb)
+		v.re.Add(&v.re,&z.re)
+		v.im.Add(&v.im,&z.im)
 
-		v.re = c
-		v.im = d
+		//絶対値を出す
+		var a,b big.Float
+		a.Mul(&v.re,&v.re)
+		b.Mul(&v.im,&v.im)
+		res.Add(&a,&b)
 
 		if res.Cmp(&absValSq) > 0 {
 			return color.Gray{255 - contrast*n}
 		}
 	}
-
 	return color.Black
 }
 
-// f(x) = x^4 - 1
-//
-// z' = z - f(z)/f'(z)
-//    = z - (z^4 - 1) / (4 * z^3)
-//    = z - (z - 1/z^3) / 4
-func newton(z complex128) color.Color {
-	const iterations = 37
-	const contrast = 7
-	for i := uint8(0); i < iterations; i++ {
-		z -= (z - 1/(z*z*z)) / 4
-		if cmplx.Abs(z*z*z*z-1) < 1e-6 {
-			return color.RGBA{0, 255 - contrast*i, 0, 0xff}
-
-		}
-	}
-	//return color.RGBA{255, 255, 255, 0}
-	return color.Black
-}
