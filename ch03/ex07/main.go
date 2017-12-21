@@ -27,21 +27,6 @@ func main() {
 	png.Encode(os.Stdout, img) // NOTE: ignoring errors
 }
 
-func mandelbrot(z complex128) color.Color {
-	const iterations = 200
-	const contrast = 15
-
-	var v complex128
-	for n := uint8(0); n < iterations; n++ {
-		v = v*v + z
-		if cmplx.Abs(v) > 2 {
-			return color.YCbCr{255 - contrast*n, 255 - contrast*n*2, 255 - contrast*n*2}
-		}
-	}
-	//return color.YCbCr{255 - contrast,255-contrast,255-contrast}
-	return color.Black
-}
-
 // f(x) = x^4 - 1
 //
 // z' = z - f(z)/f'(z)
@@ -51,12 +36,24 @@ func newton(z complex128) color.Color {
 	const iterations = 37
 	const contrast = 7
 	for i := uint8(0); i < iterations; i++ {
-		z -= (z - 1/(z*z*z)) / 4
-		if cmplx.Abs(z*z*z*z-1) < 1e-6 {
-			return color.RGBA{0, 255-contrast*i, 0, 0xff}
-
+		if cmplx.Abs(complex(1, 0)-z) < 1e-6 {
+			return color.RGBA{255 - contrast*i, 255, 0, 0xff}
 		}
+
+		if cmplx.Abs(complex(0, 1)-z) < 1e-6 {
+			return color.RGBA{255, 0, 255 - contrast*i, 0xff}
+		}
+
+		if cmplx.Abs(complex(0, -1)-z) < 1e-6 {
+			return color.RGBA{255, 255 - contrast*i, 255, 0xff}
+		}
+
+		if cmplx.Abs(complex(-1, 0)-z) < 1e-6 {
+			return color.RGBA{255, 255, 255 - contrast*i, 0xff}
+		}
+		f := z*z*z*z - 1
+		df := 4 * z * z * z
+		z = z - (f / df)
 	}
-	//return color.RGBA{255, 255, 255, 0}
 	return color.Black
 }
