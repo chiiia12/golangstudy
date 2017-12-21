@@ -14,14 +14,29 @@ func main() {
 		width, height          = 1024, 1024
 	)
 
+	dx := []float64{-0.5, 0.5, -0.5, 0.5}
+	dy := []float64{0.5, -0.5, 0.5, -0.5}
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 	for py := 0; py < height; py++ {
-		y := float64(py)/height*(ymax-ymin) + ymin
 		for px := 0; px < width; px++ {
-			x := float64(px)/width*(xmax-xmin) + xmin
-			//z := complex(x, y)
+			var r, g, b uint8 = 0, 0, 0
+			for i := 0; i < 4; i++ {
+				y := (float64(py)+dx[i])/height*(ymax-ymin) + ymin
+				x := (float64(px)+dy[i])/width*(xmax-xmin) + xmin
+				z := complex(x, y)
+				c := mandelbrot(z)
+				sr, sg, sb, _ := c.RGBA()
+				r += uint8(sr)
+				g += uint8(sg)
+				b += uint8(sb)
+
+			}
+			r = r / 4
+			g = g / 4
+			b = b / 4
+			color := color.RGBA{r, g, b, 0xff}
 			// Image point (px, py) represents complex value z.
-			img.Set(px, py, superSampling(x, y, 1))
+			img.Set(px, py, color)
 		}
 	}
 
@@ -41,13 +56,4 @@ func mandelbrot(z complex128) color.Color {
 	}
 	//return color.YCbCr{255 - contrast,255-contrast,255-contrast}
 	return color.Black
-}
-func superSampling(x, y, d float64) color.Color {
-	r1, g1, b1, _ := mandelbrot(complex(x+d, y+d)).RGBA()
-	r2, g2, b2, _ := mandelbrot(complex(x-d, y-d)).RGBA()
-	r3, g3, b3, _ := mandelbrot(complex(x+d, y-d)).RGBA()
-	r4, g4, b4, _ := mandelbrot(complex(x-d, y+d)).RGBA()
-
-	return color.RGBA{uint8((r1 + r2 + r3 + r4) / 4), uint8((g1 + g2 + g3 + g4) / 4), uint8((b1 + b2 + b3 + b4) / 4), 0xff}
-
 }
