@@ -1,2 +1,2 @@
 #!/bin/bash
-go run main.go >output.png
+go run main.go -data "complex128" >output.png
