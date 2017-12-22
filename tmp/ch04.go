@@ -34,6 +34,26 @@ func main() {
 	fmt.Println(&p == &q) //false
 	fmt.Println(&p == &p) //true
 
+	//配列 参照渡し
+	array := [4]int{0, 1, 2, 3}
+	array1 := array[:3]
+	array1[0] = 2
+	fmt.Println("array", array)
+	fmt.Println("array1", array1)
+
+	//slice 参照渡し
+	slice := []int{0, 1, 2, 3}
+	slice1 := hoge(slice[:3])
+	slice[1] = 5
+	slice1[0] = 2
+	fmt.Println("slice", slice)
+	fmt.Println("slice1", slice1)
+	fmt.Printf("%T\n", slice)
+
+}
+func hoge(s []int) []int {
+	s[1] = 5
+	return s
 }
 
 type Employee struct {

@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"unicode/utf8"
+	"math"
 )
 
 func main() {
@@ -42,4 +43,5 @@ func main() {
 		i += size
 	}
 
+	fmt.Println("isNaN :", math.IsNaN(1))
 }
