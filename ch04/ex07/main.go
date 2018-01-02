@@ -10,7 +10,6 @@ func main() {
 	reverse(str)
 }
 func reverse(str []byte) []byte {
-	//TODO:日本語でも逆順になるように？
 	fmt.Println("string length is ", utf8.RuneCountInString(string(str)))
 	fmt.Println(str)
 	byteCount := len(str) / utf8.RuneCountInString(string(str))

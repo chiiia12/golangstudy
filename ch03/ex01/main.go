@@ -55,6 +55,7 @@ func corner(i, j int) (float64, float64, bool) {
 	// Project (x,y,z) isometrically onto 2-D SVG canvas (sx,sy).
 	sx := width/2 + (x-y)*cos30*xyscale
 	sy := height/2 + (x+y)*sin30*xyscale - z*zscale
+	//isNaNとIsInfを確認する
 	if (math.IsInf(z, 0)) {
 		isCorrectValue = false
 	}

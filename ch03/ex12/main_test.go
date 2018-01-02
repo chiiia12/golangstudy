@@ -19,3 +19,9 @@ func TestAnagramFalse(t *testing.T) {
 		t.Error("expect is false.but anagram() return true")
 	}
 }
+
+func TestAnagramJapanese(t *testing.T) {
+	if !anagram("日本語", "語日本") {
+		t.Error("expect is false.but anagram() return true")
+	}
+}

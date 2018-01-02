@@ -25,11 +25,14 @@ func main() {
 			width, height = 1024, 1024
 		)
 
-		img := image.NewRGBA(image.Rect(0, 0, mag*width, mag*height))
-		for py := 0; py < height; py++ {
-			y := float64(py)/height*(ymax-miny) + miny
-			for px := 0; px < width; px++ {
-				x := float64(px)/width*(xmax-minx) + minx
+		mWidth :=mag*width
+		mHeight :=mag*height
+		img := image.NewRGBA(image.Rect(0, 0, mWidth, mHeight))
+		//以下のheightにmagがかかってないからキャンバスだけ広げて中身がない
+		for py := 0; py < mHeight; py++ {
+			y := float64(py/mHeight)*(ymax-miny) + miny
+			for px := 0; px < mWidth; px++ {
+				x := float64(px/mWidth)*(xmax-minx) + minx
 				z := complex(x, y)
 				// Image point (px, py) represents complex value z.
 				img.Set(px, py, mandelbrot(z))
