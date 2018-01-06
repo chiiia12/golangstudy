@@ -11,25 +11,21 @@ func main() {
 	isSkip := false
 	for {
 		tt := z.Next()
-		if tt == html.ErrorToken {
+		switch tt {
+		case html.ErrorToken:
 			return
-		}
-		if tt == html.StartTagToken {
-			tagname, _ := z.TagName()
-			if a := string(tagname); a == "script" || a == "style" {
+		case html.StartTagToken:
+			t, _ := z.TagName()
+			if string(t) == "script" || string(t) == "style" {
 				isSkip = true
-				continue
 			}
-		}
-		if tt == html.EndTagToken {
+		case html.EndTagToken:
 			isSkip = false
-		}
-		if tt == html.TextToken {
-
+		case html.TextToken:
 			if isSkip {
 				continue
 			}
-			fmt.Println(string(z.Text()))
+			fmt.Printf(string(z.Text()))
 		}
 	}
 }
