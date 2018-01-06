@@ -5,7 +5,7 @@
 //!+
 
 // Fetch prints the content found at each specified URL.
-package fetch
+package main
 
 import (
 	"fmt"
