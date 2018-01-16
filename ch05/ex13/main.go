@@ -10,12 +10,18 @@ import (
 	"io/ioutil"
 )
 
+var rootUrl *nu.URL;
+
 func main() {
-	//breadthFirst(crawl, os.Args[1:])
-	breadthFirst(crawl, []string{"https://golang.org"})
+	root := os.Args[1:]
+	rootUrl, _ = nu.Parse(root[0])
+	breadthFirst(crawl, root)
 }
 func crawl(url string) []string {
 	u, _ := nu.Parse(url)
+	if (u.Host != rootUrl.Host) {
+		return nil
+	}
 	if err := os.Mkdir(u.Host, 0777); err != nil {
 		fmt.Println(err)
 	}
@@ -27,20 +33,18 @@ func crawl(url string) []string {
 	for _, v := range list {
 		u2, _ := nu.Parse(v)
 		if u2.Host == u.Host {
-			if err := os.Mkdir(u2.Host+u2.Path, 0777); err != nil {
+			if err := os.Mkdir(u2.Host+"/"+u2.Path, 0777);
+				err != nil {
 				fmt.Println(err)
-				var b []byte
-				if b, err = downloadHtml(v); err != nil {
-					fmt.Println(err)
-				}
-				//TODO:ディレクトリの移動または指定したところにファイル作れてない。
-				//TODO:file existsをなんとかする
-				os.Rename(u2.Host, u2.Host+"/"+u2.Path)
-				file, _ := os.Create("index.html")
-				file.Write(b)
 			}
-
+			var b []byte
+			if b, err = downloadHtml(v); err != nil {
+				fmt.Println(err)
+			}
+			file, _ := os.Create(u2.Host + "/" + u2.Path + "/index.html")
+			file.Write(b)
 		}
+
 	}
 	return list
 }
