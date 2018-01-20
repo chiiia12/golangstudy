@@ -6,20 +6,6 @@ import (
 )
 
 func main() {
-	var x, y IntSet
-	x.Add(1)
-	x.Add(144)
-	x.Add(9)
-	//x.Remove(1)
-	x.Clear()
-	var z = x.Copy()
-	z.Add(2)
-	fmt.Println(x.String())
-	fmt.Println(z.String())
-
-	y.Add(9)
-	y.Add(42)
-	fmt.Println(y.String())
 }
 
 type IntSet struct {
@@ -56,21 +42,27 @@ func (s *IntSet) Add(x int) {
 
 //要素数を返します
 func (s *IntSet) Len() int {
-	return len(s.words)
+	count := 0
+	for _, v := range s.words {
+		tmp := v
+		var j uint
+		for tmp != 0 {
+			if v&(1<<j) == (1 << j) {
+				count++
+			}
+			tmp = tmp &^ (1 << j)
+			j++
+		}
+	}
+	return count
 }
 
 //セットからｘを取り除きます
-//なんかうまくいかん
 func (s *IntSet) Remove(x int) {
-	bit := uint(x % 64)
-	var result []uint64
-	for _, v := range s.words {
-		if v != 1<<bit {
-			result = append(result, v)
-		}
+	word, bit := x/64, uint(x%64)
+	if s.words[word]&(1<<bit) == 1<<bit {
+		s.words[word] &^= 1 << bit
 	}
-	fmt.Println(result)
-	s.words = result
 }
 
 //セットからすべての要素を取り除きます
@@ -80,6 +72,9 @@ func (s *IntSet) Clear() {
 
 //セットのコピーを返します
 func (s *IntSet) Copy() *IntSet {
-	copy := *s
+	var copy IntSet
+	for _, v := range s.words {
+		copy.words = append(copy.words, v)
+	}
 	return &copy
 }
