@@ -8,8 +8,9 @@ import (
 
 func main() {
 	var w WordCount
-	w.Write([]byte("hello hello hello"))
-	fmt.Println("wordcount is", w)
+	name := "Dolly Dolly"
+	fmt.Fprintf(&w, "hello, %s", name)
+	fmt.Println(w)
 }
 
 type WordCount int

@@ -8,8 +8,8 @@ import (
 
 func main() {
 	var l LineCount
-	l.Write([]byte("hello hello hello\nhello hello"))
-	fmt.Println("linecount is", l)
+	fmt.Fprintf(&l, "hello hello \nhello hello")
+	fmt.Println(l)
 }
 
 type LineCount int
