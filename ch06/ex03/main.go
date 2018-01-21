@@ -24,7 +24,7 @@ func main() {
 }
 
 type IntSet struct {
-	words []uint
+	words []uint64
 }
 
 func (s *IntSet) UnionWith(t *IntSet) {
