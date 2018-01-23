@@ -24,9 +24,14 @@ func NewReader(s string) io.Reader {
 }
 
 type SampleReader struct {
-	s string
+	s   string
+	len int
 }
 
 func (r *SampleReader) Read(p []byte) (n int, err error) {
+	if r.len == len(r.s) {
+		return 0, io.EOF
+	}
+	r.len = len(r.s)
 	return len(p), nil
 }
