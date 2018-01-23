@@ -6,7 +6,6 @@ import (
 	"os"
 )
 
-//TODO:lenが取れてないきがする。イマイチよくわかってない。
 type WriterWrapper struct {
 	len int64
 	w   io.Writer
@@ -20,8 +19,8 @@ func (w *WriterWrapper) Write(p []byte) (n int, err error) {
 
 func main() {
 	std := os.Stdout
-	std.Write([]byte("hoge hoge "))
 	i, l := CountingWriter(std)
+	i.Write([]byte("hogehoge"))
 	fmt.Printf("writer %v\n", i)
 	fmt.Println("int64", *l)
 }
