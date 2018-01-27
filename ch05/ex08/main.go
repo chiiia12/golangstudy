@@ -25,24 +25,29 @@ func main() {
 
 func ElementById(doc *html.Node, id string, out io.Writer) *html.Node {
 
+	//forEachNodeまでid渡さなくてもよかったかも。クロージャーで保持できる
 	forEachNode(doc, id, startElementById, endElement, out)
 	return doc
 
 }
 
-func forEachNode(n *html.Node, id string, pre, post func(n *html.Node, out io.Writer, id string) bool, out io.Writer) {
+func forEachNode(n *html.Node, id string, pre, post func(n *html.Node, out io.Writer, id string) bool, out io.Writer) bool {
 
 	if pre != nil {
 		if !pre(n, out, id) {
-			os.Exit(0)
+			//os.Exit(0)
+			return false
 		}
 	}
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		forEachNode(c, id, pre, post, out)
+		if !forEachNode(c, id, pre, post, out) {
+			return false
+		}
 	}
 	if post != nil {
 		post(n, out, "")
 	}
+	return true
 }
 
 var depth int

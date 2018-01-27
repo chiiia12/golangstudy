@@ -47,6 +47,7 @@ func (s *IntSet) Len() int {
 		tmp := v
 		var j uint
 		for tmp != 0 {
+			//0かどうかを比較すればよいよ
 			if v&(1<<j) == (1 << j) {
 				count++
 			}
@@ -58,6 +59,7 @@ func (s *IntSet) Len() int {
 }
 
 //セットからｘを取り除きます
+//存在しない数字いれると落ちる
 func (s *IntSet) Remove(x int) {
 	word, bit := x/64, uint(x%64)
 	if s.words[word]&(1<<bit) == 1<<bit {

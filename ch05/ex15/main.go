@@ -1,5 +1,6 @@
 package main
 
+//コンパイラは通るけど呼ぶと落ちるパターン
 func max(vals ...int) int {
 	if len(vals) == 0 {
 		panic("param size is 0")
@@ -13,6 +14,10 @@ func max(vals ...int) int {
 	return max
 }
 
+//コンパイラで引数なしパターンのエラーがわかる
+//func max(x int,vals...int)int
+//minやmaxの初期値を0にしてると不十分
+//配列の0番目にするか、intの一番マイナス値をとるなど？
 func min(vals ...int) int {
 	if len(vals) == 0 {
 		panic("param size is 0")

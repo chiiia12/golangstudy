@@ -37,6 +37,8 @@ func main() {
 	}
 }
 
+//2ホップ以上の循環の時に対応できてない
+
 func topoSort(m map[string][]string) []string {
 	var order []string
 	seen := make(map[string]bool)

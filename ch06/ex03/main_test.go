@@ -7,9 +7,11 @@ func TestIntersectWith(t *testing.T) {
 	x.Add(1)
 	x.Add(2)
 	x.Add(3)
+	x.Add(200)
 	y.Add(3)
 	y.Add(4)
 	y.Add(5)
+	y.Add(1000)
 	x.IntersectWith(&y)
 	if actual := x.String(); actual != "{3}" {
 		t.Errorf("intersectWith result isnot {3},actual %v", actual)

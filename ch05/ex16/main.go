@@ -1,6 +1,7 @@
 package main
 
 func join(sep string, vals ...string) string {
+	//strings.Join(vals,sep)でもいけるよ
 	str := ""
 	for i, v := range vals {
 		str += v
@@ -10,4 +11,3 @@ func join(sep string, vals ...string) string {
 	}
 	return str
 }
-

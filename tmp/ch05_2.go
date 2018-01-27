@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 )
@@ -9,14 +8,15 @@ import (
 const debug = true
 
 func main() {
-	var buf *bytes.Buffer
-	if debug {
-		buf = new(bytes.Buffer)
-	}
-	f(hoge)
-	if debug {
-		fmt.Println("debug")
-	}
+	//var buf *bytes.Buffer
+	//if debug {
+	//	buf = new(bytes.Buffer)
+	//}
+	//f(hoge)
+	//if debug {
+	//	fmt.Println("debug")
+	//}
+	fmt.Errorf("HTML aarse is hogehoge.")
 }
 func f(out io.Writer) {
 	if out != nil {

@@ -12,6 +12,8 @@ import (
 
 var rootUrl *nu.URL;
 
+//スラッシュで終わってるかでindex.htmlで保存するのか分岐が必要。
+//PDFもindex.htmlで吐き出されてる
 func main() {
 	root := os.Args[1:]
 	rootUrl, _ = nu.Parse(root[0])
