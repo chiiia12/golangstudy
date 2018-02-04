@@ -112,12 +112,10 @@ func parseUnary(lex *lexer) Expr {
 //         | num
 //         | '(' expr ')'
 func parsePrimary(lex *lexer) Expr {
-	fmt.Printf("lex.token is %v\n", lex.token)
 	switch lex.token {
 	case scanner.Ident:
 		id := lex.text()
 		lex.next() // consume Ident
-		fmt.Printf("lex.next is %s\n", string(lex.token))
 		if lex.token != '(' && lex.token != '[' {
 			return Var(id)
 		}
@@ -126,7 +124,6 @@ func parsePrimary(lex *lexer) Expr {
 			close = ']'
 		}
 		lex.next() // consume '(' and '['
-		fmt.Printf("close is : %v\n", string(close))
 		var args []Expr
 		if lex.token != close {
 			for {
@@ -158,7 +155,6 @@ func parsePrimary(lex *lexer) Expr {
 		return literal(f)
 
 	case '(':
-		fmt.Println("(に入った", lex.token)
 		lex.next() // consume '('
 		e := parseExpr(lex)
 		if lex.token != ')' {
@@ -167,16 +163,6 @@ func parsePrimary(lex *lexer) Expr {
 		}
 		lex.next() // consume ')'
 		return e
-		//case '[':
-		//	fmt.Println("'['に入った!", lex.token)
-		//	lex.next() //consume '['
-		//	e := parseExpr(lex)
-		//	if lex.token != ']' {
-		//		msg := fmt.Sprintf("got %s, want ']'", lex.describe())
-		//		panic(lexPanic(msg))
-		//	}
-		//	lex.next() //consume ']'
-		//	return e
 	}
 	msg := fmt.Sprintf("unexpected %s", lex.describe())
 	panic(lexPanic(msg))
