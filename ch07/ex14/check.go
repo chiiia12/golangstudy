@@ -10,6 +10,10 @@ import (
 
 //!+Check
 
+func (n newVar) Check(vars map[Var]bool) error {
+	return nil
+}
+
 func (v Var) Check(vars map[Var]bool) error {
 	vars[v] = true
 	return nil
