@@ -11,6 +11,9 @@ import (
 //!+Check
 
 func (n newVar) Check(vars map[Var]bool) error {
+	if n.fn != "min" {
+		return fmt.Errorf("%v is unexpected function name", n.fn)
+	}
 	return nil
 }
 

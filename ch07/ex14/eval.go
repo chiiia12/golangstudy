@@ -70,10 +70,10 @@ func (c call) Eval(env Env) float64 {
 func (n newVar) Eval(env Env) float64 {
 	switch n.fn {
 	case "min":
-		var min = 0
+		var min float64 = n.args[0].Eval(env)
 		for _, v := range n.args {
-			if min > v {
-				min = v
+			if min > v.Eval(env) {
+				min = v.Eval(env)
 			}
 		}
 		return float64(min)

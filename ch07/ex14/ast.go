@@ -17,7 +17,7 @@ type Expr interface {
 //ex14 type
 type newVar struct {
 	fn   string
-	args []int
+	args []Expr
 }
 
 // A Var identifies a variable, e.g., x.
