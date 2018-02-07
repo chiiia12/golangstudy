@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	fmt.Println("ex) http://localhost:8000?expr=(1.1 * 2 %%2b 3)*3&expr=355/113")
+	fmt.Println("ex) http://localhost:8000?expr=355/113")
 	http.HandleFunc("/", calc)
 	log.Fatal(http.ListenAndServe("localhost:8000", nil))
 }
