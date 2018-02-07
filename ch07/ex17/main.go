@@ -15,7 +15,9 @@ type Element struct {
 
 func main() {
 	dec := xml.NewDecoder(os.Stdin)
-	var stack []Element
+	var stack []string
+	var args = os.Args[1:]
+	fmt.Printf("%v\n", args)
 
 	for {
 		tok, err := dec.Token()
@@ -26,27 +28,22 @@ func main() {
 		}
 		switch tok := tok.(type) {
 		case xml.StartElement:
-			element := Element{tok.Name.Local, tok.Attr}
-			stack = append(stack, element)
+			stack = append(stack, tok.Name.Local)
 		case xml.EndElement:
 			stack = stack[:len(stack)-1]
 		case xml.CharData:
 			if containsAll(stack, os.Args[1:]) {
-				arr := []string{}
-				for _, v := range stack {
-					arr = append(arr, v.name)
-				}
-				fmt.Printf("%s: %s\n", strings.Join(arr, " "), tok)
+				fmt.Printf("%s:%s\n", strings.Join(stack, " "), tok)
 			}
 		}
 	}
 }
-func containsAll(x []Element, y []string) bool {
+func containsAll(x, y []string) bool {
 	for len(y) <= len(x) {
 		if len(y) == 0 {
 			return true
 		}
-		if x[0].name == y[0] {
+		if x[0] == y[0] {
 			y = y[1:]
 		}
 		x = x[1:]
