@@ -5,7 +5,12 @@ import (
 	"log"
 	"net"
 	"time"
+	"flag"
+	"fmt"
+	"strconv"
 )
+
+var port = flag.Int("port", 8080, "input port number")
 
 func handleConn(c net.Conn) {
 	defer c.Close()
@@ -19,7 +24,11 @@ func handleConn(c net.Conn) {
 }
 
 func main() {
-	listener, err := net.Listen("tcp", "localhost:8000")
+	fmt.Println("main!!")
+	flag.Parse()
+	fmt.Println(*port)
+
+	listener, err := net.Listen("tcp", "localhost:"+strconv.Itoa(*port))
 	if err != nil {
 		log.Fatal(err)
 	}
