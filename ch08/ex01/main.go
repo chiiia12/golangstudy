@@ -7,11 +7,13 @@ import (
 	"time"
 	"flag"
 	"strconv"
+	"fmt"
 )
 
 var port = flag.Int("port", 8080, "input port number")
 
 func handleConn(c net.Conn) {
+	fmt.Println("handleConn")
 	defer c.Close()
 	for {
 		_, err := io.WriteString(c, time.Now().Format("15:04:05\n"))

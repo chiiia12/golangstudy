@@ -18,12 +18,14 @@ func main() {
 	fmt.Println(os.Args[1:])
 	argList := parsePlace(os.Args[1:])
 	fmt.Printf("argList is %v\n", argList)
-	conn, err := net.Dial("tcp", "localhost:8000")
-	if err != nil {
-		log.Fatal(err)
+	for _, v := range argList {
+		conn, err := net.Dial("tcp", v.Address)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Close()
+		mustCopy(os.Stdout, conn)
 	}
-	defer conn.Close()
-	mustCopy(os.Stdout, conn)
 }
 func parsePlace(s []string) []*PlaceInfo {
 	var argList []*PlaceInfo
