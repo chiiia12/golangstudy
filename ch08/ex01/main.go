@@ -6,7 +6,6 @@ import (
 	"net"
 	"time"
 	"flag"
-	"fmt"
 	"strconv"
 )
 
@@ -24,9 +23,7 @@ func handleConn(c net.Conn) {
 }
 
 func main() {
-	fmt.Println("main!!")
 	flag.Parse()
-	fmt.Println(*port)
 
 	listener, err := net.Listen("tcp", "localhost:"+strconv.Itoa(*port))
 	if err != nil {
