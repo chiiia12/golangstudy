@@ -4,27 +4,51 @@ import (
 	"net"
 	"log"
 	"os"
-	"io"
 	"fmt"
 	"strings"
+	"bufio"
 )
 
 type PlaceInfo struct {
 	Place   string
 	Address string
 }
+type time struct {
+	index int
+	time  string
+}
 
 func main() {
+	out := make(chan time, 3)
 	fmt.Println(os.Args[1:])
 	argList := parsePlace(os.Args[1:])
 	fmt.Printf("argList is %v\n", argList)
-	for _, v := range argList {
-		conn, err := net.Dial("tcp", v.Address)
-		if err != nil {
-			log.Fatal(err)
+	for i, v := range argList {
+		funcName(v, out, i)
+	}
+	for {
+		times := make([]string, len(argList))
+		for i := 0; i < len(argList); i++ {
+			t := <-out
+			times[t.index] = t.time
 		}
-		defer conn.Close()
-		mustCopy(os.Stdout, conn)
+		fmt.Println(strings.Join(times, " "))
+	}
+}
+func funcName(v *PlaceInfo, out chan time, i int) {
+	conn, err := net.Dial("tcp", v.Address)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+	reader := bufio.NewReader(conn)
+	for {
+		bytes, _, err := reader.ReadLine()
+		if err != nil {
+			break
+		}
+		out <- time{i, fmt.Sprintf("%s: %s ", v.Place, string(bytes))}
+
 	}
 }
 func parsePlace(s []string) []*PlaceInfo {
@@ -37,9 +61,4 @@ func parsePlace(s []string) []*PlaceInfo {
 		}
 	}
 	return argList
-}
-func mustCopy(dst io.Writer, src io.Reader) {
-	if _, err := io.Copy(dst, src); err != nil {
-		log.Fatal(err)
-	}
 }
