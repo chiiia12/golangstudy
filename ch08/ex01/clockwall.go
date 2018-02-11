@@ -24,7 +24,7 @@ func main() {
 	argList := parsePlace(os.Args[1:])
 	fmt.Printf("argList is %v\n", argList)
 	for i, v := range argList {
-		funcName(v, out, i)
+		go getServerOutput(v, out, i)
 	}
 	for {
 		times := make([]string, len(argList))
@@ -35,7 +35,7 @@ func main() {
 		fmt.Println(strings.Join(times, " "))
 	}
 }
-func funcName(v *PlaceInfo, out chan time, i int) {
+func getServerOutput(v *PlaceInfo, out chan time, i int) {
 	conn, err := net.Dial("tcp", v.Address)
 	if err != nil {
 		log.Fatal(err)
