@@ -28,13 +28,13 @@ func main() {
 		y := float64(py)/height*(ymax-ymin) + ymin
 		for px := 0; px < width; px++ {
 			wg.Add(1)
-			go func() {
+			go func(px, py int) {
 				defer wg.Done()
 				x := float64(px)/width*(xmax-xmin) + xmin
 				z := complex(x, y)
 				// Imag point (px, py) represents complex value z.
 				img.Set(px, py, mandelbrot(z))
-			}()
+			}(px, py)
 		}
 	}
 	wg.Wait()
