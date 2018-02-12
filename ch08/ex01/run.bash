@@ -1,8 +1,5 @@
 #!/bin/bash
-kill `lsof -i:8000` 2>/dev/null
-kill `lsof -i:8010` 2>/dev/null
-kill `lsof -i:8020` 2>/dev/null
-kill `lsof -i:8030` 2>/dev/null
+killall main
 
 go build ./main.go
 go build ./clockwall.go

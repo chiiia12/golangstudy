@@ -36,6 +36,7 @@ func main() {
 	}
 }
 func getServerOutput(v *PlaceInfo, out chan time, i int) {
+	fmt.Printf("address is %v\n", v.Address)
 	conn, err := net.Dial("tcp", v.Address)
 	if err != nil {
 		log.Fatal(err)
