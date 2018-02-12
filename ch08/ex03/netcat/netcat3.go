@@ -14,7 +14,7 @@ func main() {
 		log.Fatal(err)
 	}
 	tcpConn, ok := conn.(*net.TCPConn)
-	if !ok{
+	if !ok {
 		log.Fatal("This is not TCPConnection")
 	}
 
@@ -30,6 +30,7 @@ func main() {
 	tcpConn.CloseWrite()
 	log.Println("after mustCopy")
 	//doneを受信するまでその先に進まない
+	//doneの受信がないとconnection closeを同期で待ち合わせしない
 	<-done
 	log.Print("after done")
 }
