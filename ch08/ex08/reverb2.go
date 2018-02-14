@@ -52,7 +52,9 @@ func watch(c net.Conn, alive chan string) {
 	for {
 		select {
 		case <-time.After(10 * time.Second):
+			log.Print("10 seconds has passed")
 			c.Close()
+			return
 		case _, ok := <-alive:
 			log.Print("alive is ", ok)
 		}
