@@ -19,6 +19,8 @@ func main() {
 		fmt.Printf("%v\n", err)
 	}
 }
+//TODO:このままだと一階層以降が深ぼれいない。
+//チャンネルで同期する必要あり
 
 func Extract(url string) interface{} {
 	resp, err := http.Get(url)
@@ -81,9 +83,10 @@ func extractByType(resp *http.Response, url, path, host, hostURL string) error {
 					n.Attr[i].Val = "file:" + a.Val
 					if a.Val != "/" && a.Val != "#" && link.String() != hostURL {
 						if a.Val[0] == '/' {
-							extractAsFile(link.String(), host+a.Val, host, hostURL)
+							go extractAsFile(link.String(), host+a.Val, host, hostURL)
 						} else {
-							extractAsFile(link.String(), host+"/"+a.Val, host, hostURL)
+							go extractAsFile(link.String(), host+"/"+a.Val, host, hostURL)
+							//同期取る
 						}
 					}
 				}
@@ -97,7 +100,8 @@ func extractByType(resp *http.Response, url, path, host, hostURL string) error {
 				if err != nil {
 					continue
 				}
-				extractAsFile(link.String(), host+"/"+a.Val, host, hostURL)
+				go extractAsFile(link.String(), host+"/"+a.Val, host, hostURL)
+				//同期とる
 			}
 		}
 	}
@@ -112,6 +116,8 @@ func extractByType(resp *http.Response, url, path, host, hostURL string) error {
 	html.Render(f, doc)
 	return nil
 }
+//ここの呼び出しをgoroutineにする
+//channelで
 func extractAsFile(url, path, host, hostUrl string) error {
 	fmt.Printf("Contents of %s should be stored as %s\n", url, path)
 
