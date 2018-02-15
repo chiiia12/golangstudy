@@ -1,4 +1,4 @@
-package main
+package du4
 
 import (
 	"path/filepath"
