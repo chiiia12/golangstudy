@@ -27,7 +27,7 @@ func main() {
 	var wg sync.WaitGroup
 	for _, root := range roots {
 		wg.Add(1)
-		go walkDir(root, &wg, fileSizes)
+		go walkDir(root, root, &wg, fileSizes)
 	}
 	go func() {
 		wg.Wait()
@@ -40,7 +40,6 @@ func main() {
 		tick = time.Tick(500 * time.Millisecond)
 	}
 
-	var nfiles, nbytes int64
 	sizeMap := make(map[string]int64)
 loop:
 	for {
@@ -50,36 +49,29 @@ loop:
 				break loop
 			}
 			sizeMap[size.dirname] += size.fileSize
-			//nfiles++
-			//nbytes += size
 		case <-tick:
-			printDiskUsage(nfiles, nbytes, sizeMap)
+			printDiskUsage(sizeMap)
 		}
 	}
-	printDiskUsage(nfiles, nbytes, sizeMap)
+	printDiskUsage(sizeMap)
 }
 
-func printDiskUsage(nfiles, nbytes int64, sizemap map[string]int64) {
-	//fmt.Printf("%d files %.1f GB\n", nfiles, float64(nbytes)/1e9)
-	//for k, v := range *sizeMap {
-	//	fmt.Printf("%v :%v GB ", k, v)
-	//}
-	//fmt.Printf("\n")
+func printDiskUsage(sizemap map[string]int64) {
 	for k, v := range sizemap {
-		fmt.Printf("%v : %v GB\n", k,v)
+		fmt.Printf("%v : %.1f GB", k, float64(v)/1e9)
 	}
 	fmt.Printf("\n")
 }
 
-func walkDir(dir string, wg *sync.WaitGroup, fileSize chan<- fileInfo) {
+func walkDir(rootdir string, dir string, wg *sync.WaitGroup, fileSize chan<- fileInfo) {
 	defer wg.Done()
 	for _, entry := range dirents(dir) {
 		if entry.IsDir() {
 			subdir := filepath.Join(dir, entry.Name())
 			wg.Add(1)
-			go walkDir(subdir, wg, fileSize)
+			go walkDir(rootdir, subdir, wg, fileSize)
 		} else {
-			fileSize <- fileInfo{dir, entry.Size()}
+			fileSize <- fileInfo{rootdir, entry.Size()}
 		}
 	}
 }
