@@ -20,9 +20,12 @@ func main() {
 	}
 	fileSizes := make(chan int64)
 	var wg sync.WaitGroup
+	sizeMap := make(map[string]int64)
 	for _, root := range roots {
+		var fileSizeSum int64
+		sizeMap[root] = fileSizeSum
 		wg.Add(1)
-		go walkDir(root, &wg, fileSizes)
+		go walkDir(root, &wg, fileSizes, &fileSizeSum)
 	}
 	go func() {
 		wg.Wait()
@@ -46,24 +49,30 @@ loop:
 			nfiles++
 			nbytes += size
 		case <-tick:
-			printDiskUsage(nfiles, nbytes)
+			printDiskUsage(nfiles, nbytes, &sizeMap)
 		}
 	}
-	printDiskUsage(nfiles, nbytes)
+	printDiskUsage(nfiles, nbytes, &sizeMap)
 }
 
-func printDiskUsage(nfiles, nbytes int64) {
-	fmt.Printf("%d files %.1f GB\n", nfiles, float64(nbytes)/1e9)
+func printDiskUsage(nfiles, nbytes int64, sizeMap *map[string]int64) {
+	//fmt.Printf("%d files %.1f GB\n", nfiles, float64(nbytes)/1e9)
+	for k, v := range *sizeMap {
+		fmt.Printf("%v :%v GB ", k, v)
+	}
+	fmt.Printf("\n")
 }
 
-func walkDir(dir string, wg *sync.WaitGroup, fileSizes chan<- int64) {
+func walkDir(dir string, wg *sync.WaitGroup, fileSizes chan<- int64, sum *int64) {
 	defer wg.Done()
 	for _, entry := range dirents(dir) {
 		if entry.IsDir() {
 			subdir := filepath.Join(dir, entry.Name())
 			wg.Add(1)
-			go walkDir(subdir, wg, fileSizes)
+			go walkDir(subdir, wg, fileSizes, sum)
 		} else {
+			*sum = *sum + entry.Size()
+			fmt.Println("fileSize is ", *sum)
 			fileSizes <- entry.Size()
 		}
 	}
