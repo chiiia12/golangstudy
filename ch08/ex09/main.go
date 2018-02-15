@@ -10,6 +10,11 @@ import (
 	"sync"
 )
 
+type fileInfo struct {
+	dirname  string
+	fileSize int64
+}
+
 var verbose = flag.Bool("v", false, "show verbose progress messages")
 
 func main() {
@@ -18,14 +23,11 @@ func main() {
 	if len(roots) == 0 {
 		roots = []string{"."}
 	}
-	fileSizes := make(chan int64)
+	fileSizes := make(chan fileInfo)
 	var wg sync.WaitGroup
-	sizeMap := make(map[string]int64)
 	for _, root := range roots {
-		var fileSizeSum int64
-		sizeMap[root] = fileSizeSum
 		wg.Add(1)
-		go walkDir(root, &wg, fileSizes, &fileSizeSum)
+		go walkDir(root, &wg, fileSizes)
 	}
 	go func() {
 		wg.Wait()
@@ -39,6 +41,7 @@ func main() {
 	}
 
 	var nfiles, nbytes int64
+	sizeMap := make(map[string]int64)
 loop:
 	for {
 		select {
@@ -46,34 +49,37 @@ loop:
 			if !ok {
 				break loop
 			}
-			nfiles++
-			nbytes += size
+			sizeMap[size.dirname] += size.fileSize
+			//nfiles++
+			//nbytes += size
 		case <-tick:
-			printDiskUsage(nfiles, nbytes, &sizeMap)
+			printDiskUsage(nfiles, nbytes, sizeMap)
 		}
 	}
-	printDiskUsage(nfiles, nbytes, &sizeMap)
+	printDiskUsage(nfiles, nbytes, sizeMap)
 }
 
-func printDiskUsage(nfiles, nbytes int64, sizeMap *map[string]int64) {
+func printDiskUsage(nfiles, nbytes int64, sizemap map[string]int64) {
 	//fmt.Printf("%d files %.1f GB\n", nfiles, float64(nbytes)/1e9)
-	for k, v := range *sizeMap {
-		fmt.Printf("%v :%v GB ", k, v)
+	//for k, v := range *sizeMap {
+	//	fmt.Printf("%v :%v GB ", k, v)
+	//}
+	//fmt.Printf("\n")
+	for k, v := range sizemap {
+		fmt.Printf("%v : %v GB\n", k,v)
 	}
 	fmt.Printf("\n")
 }
 
-func walkDir(dir string, wg *sync.WaitGroup, fileSizes chan<- int64, sum *int64) {
+func walkDir(dir string, wg *sync.WaitGroup, fileSize chan<- fileInfo) {
 	defer wg.Done()
 	for _, entry := range dirents(dir) {
 		if entry.IsDir() {
 			subdir := filepath.Join(dir, entry.Name())
 			wg.Add(1)
-			go walkDir(subdir, wg, fileSizes, sum)
+			go walkDir(subdir, wg, fileSize)
 		} else {
-			*sum = *sum + entry.Size()
-			fmt.Println("fileSize is ", *sum)
-			fileSizes <- entry.Size()
+			fileSize <- fileInfo{dir, entry.Size()}
 		}
 	}
 }
