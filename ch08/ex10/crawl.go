@@ -12,7 +12,6 @@ var done = make(chan struct{})
 func canceled() bool {
 	select {
 	case <-done:
-		//log.Println("canceled is done")
 		return true
 	default:
 		return false
@@ -65,24 +64,6 @@ func main() {
 					return
 				}
 			}
-			log.Println("list loop")
-		}
-		log.Println("worklist loop")
-	}
-	log.Println("worklist loop done")
-	//worklist loopが終わらなくて下のforではdoneをキャッチできない。→main関数が終わらない
-	for {
-		log.Println("channel for")
-		select {
-		case <-done:
-			log.Println("main's loop is done")
-			for range worklist {
-				//channelの呼び出し
-			}
-			for range unseenLinks {
-				//channelの呼び出し
-			}
-			return
 		}
 	}
 }
@@ -97,7 +78,6 @@ func crawl(url string) []string {
 	select {
 	case tokens <- struct{}{}:
 	case <-done:
-		log.Print("in crawl methoed :done ")
 		return nil
 	}
 	list, err := links.Extract(url)
