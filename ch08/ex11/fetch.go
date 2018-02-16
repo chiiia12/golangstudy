@@ -12,25 +12,22 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"log"
 )
 
 func main() {
-	done := make(chan struct{})
-	responses := make(chan string, 1)
+	responses := make(chan string)
 	for _, url := range os.Args[1:] {
 		go func() {
-			select {
-			case <-done:
-				log.Println("done has received")
-				close(responses)
-
-			case responses <- fetch(url):
-				log.Println("responses has received")
-				close(done)
-			}
+			responses <- fetch(url)
 		}()
 	}
+	for {
+		select {
+		case <-responses:
+			return
+		}
+	}
+
 }
 
 func fetch(url string) string {
