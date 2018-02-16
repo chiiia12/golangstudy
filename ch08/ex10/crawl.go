@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 	"fmt"
-	"gopl.io/ch5/links"
 	"log"
+	"./links"
 )
 
 var done = make(chan struct{})
@@ -80,7 +80,7 @@ func crawl(url string) []string {
 	case <-done:
 		return nil
 	}
-	list, err := links.Extract(url)
+	list, err := links.Extract(done, url)
 	<-tokens
 	if err != nil {
 		log.Print(err)
