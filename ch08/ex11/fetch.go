@@ -12,25 +12,48 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"log"
 )
 
+var done = make(chan struct{})
+
+func canceled() bool {
+	select {
+	case <-done:
+		return true
+	default:
+		return false
+	}
+}
+
 func main() {
-	responses := make(chan string)
 	for _, url := range os.Args[1:] {
 		go func() {
-			responses <- fetch(url)
+			fetch(done, url)
 		}()
 	}
 	for {
 		select {
-		case <-responses:
+		case <-done:
+			log.Println("done")
 			return
 		}
 	}
 
 }
 
-func fetch(url string) string {
+func fetch(done chan struct{}, url string) {
+	log.Println("fetch" + url)
+	if canceled() {
+		log.Println("cancel" + url)
+		return
+	}
+	select {
+	case <-done:
+		log.Println("done in fetch")
+		return
+	default:
+	}
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "fetch: %v\n", err)
@@ -42,7 +65,6 @@ func fetch(url string) string {
 		fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", url, err)
 		os.Exit(1)
 	}
-	//fmt.Printf("%s", b)
 	fmt.Printf("fetched url :%s\n", url)
-	return url
+	done <- struct{}{}
 }
