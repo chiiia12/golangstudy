@@ -50,6 +50,7 @@ func broadcaster() {
 	}
 }
 func handleConn(conn net.Conn) {
+	fmt.Fprintln(conn, "handleConn")
 	ch := make(chan string) //送信用のクライアントメッセージ
 	go clientWriter(conn, ch)
 
