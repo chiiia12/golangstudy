@@ -25,13 +25,19 @@ func main() {
 
 type client chan<- string
 
+type clientset struct {
+	c    client
+	name string
+}
+
 var (
-	entering = make(chan client)
-	leaving  = make(chan client)
+	entering = make(chan clientset)
+	leaving  = make(chan clientset)
 	messages = make(chan string) //クライアントから受信するすべてのメッセージ
 )
 
 func broadcaster() {
+	clientsName := make(map[string]bool)
 	clients := make(map[client]bool) //すべての接続されているクライアント
 	for {
 		select {
@@ -42,10 +48,20 @@ func broadcaster() {
 			}
 
 		case cli := <-entering:
-			clients[cli] = true
+			clients[cli.c] = true
+			clientsName[cli.name] = true
+			var clientsList string
+			for k, v := range clientsName {
+				if v {
+					clientsList += k
+					clientsList += " "
+				}
+			}
+			cli.c <- "client list:" + clientsList
 		case cli := <-leaving:
-			delete(clients, cli)
-			close(cli)
+			clientsName[cli.name] = false
+			delete(clients, cli.c)
+			close(cli.c)
 		}
 	}
 }
@@ -57,16 +73,17 @@ func handleConn(conn net.Conn) {
 	who := conn.RemoteAddr().String()
 	ch <- "You are " + who
 	messages <- who + " has arrived"
-	entering <- ch
+	entering <- clientset{ch, who}
 
 	input := bufio.NewScanner(conn)
 	for input.Scan() {
 		messages <- who + ": " + input.Text()
 	}
-	leaving <- ch
+	leaving <- clientset{ch, who}
 	messages <- who + " has left"
 	conn.Close()
 }
+
 func clientWriter(conn net.Conn, ch <-chan string) {
 	for msg := range ch {
 		fmt.Fprintln(conn, msg) //ネットワークエラーを無視
