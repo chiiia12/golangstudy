@@ -10,9 +10,9 @@ func TestWithdraw(t *testing.T) {
 	Deposit(10)
 	fmt.Println(Balance())
 	//when
-	Withdraw(5)
+	ok := Withdraw(5)
 	//then
-	if result := Balance(); result != 5 {
+	if result := Balance(); ok && result != 5 {
 		t.Errorf("Withdraw result is not 5.actual is ", result)
 	}
 }

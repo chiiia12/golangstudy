@@ -3,6 +3,7 @@ package ex01
 var deposits = make(chan int) //入金額を送信
 var balances = make(chan int) //残高を受信する
 var withdraw = make(chan int) //出金額を送信
+var done = make(chan bool)
 
 func Deposit(amount int) {
 	deposits <- amount
@@ -11,8 +12,10 @@ func Deposit(amount int) {
 func Balance() int {
 	return <-balances
 }
-func Withdraw(amount int) {
+
+func Withdraw(amount int) bool {
 	withdraw <- amount
+	return <-done
 }
 
 func teller() {
@@ -25,6 +28,7 @@ func teller() {
 			//<- balancesだけにするとdeadlockになる
 		case amount := <-withdraw:
 			balance -= amount
+			done <- true
 		}
 	}
 
