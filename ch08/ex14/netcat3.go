@@ -22,9 +22,7 @@ func main() {
 		log.Println("done")
 		done <- struct{}{}
 	}()
-	log.Println("before mustCopy")
 	mustCopy(conn, os.Stdin)
-	log.Println("after mustCopy")
 	tcpConn.CloseWrite()
 	conn.Close()
 	<-done

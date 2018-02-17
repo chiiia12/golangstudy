@@ -38,7 +38,6 @@ var (
 )
 
 func broadcaster() {
-	clientsName := make(map[string]bool)
 	clients := make(map[client]bool) //すべての接続されているクライアント
 	for {
 		select {
@@ -50,17 +49,7 @@ func broadcaster() {
 
 		case cli := <-entering:
 			clients[cli.c] = true
-			clientsName[cli.name] = true
-			var clientsList string
-			for k, v := range clientsName {
-				if v {
-					clientsList += k
-					clientsList += " "
-				}
-			}
-			cli.c <- "client list:" + clientsList
 		case cli := <-leaving:
-			clientsName[cli.name] = false
 			delete(clients, cli.c)
 			close(cli.c)
 		}
