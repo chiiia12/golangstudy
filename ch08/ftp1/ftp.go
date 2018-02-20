@@ -8,7 +8,8 @@ import (
 )
 
 func main() {
-	listener, err := net.Listen("tcp", "localhost:8022")
+	listener, err := net.Listen("tcp", "localhost:8033")
+	done := make(chan struct{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -20,56 +21,71 @@ func main() {
 			continue
 		}
 		go handleConn(conn)
+		go func() {
+			<-done
+			return
+		}()
 	}
 }
-type ConnectionManager struct{
 
+type ConnectionManager struct {
+	conn net.Conn
+	in   chan string
+	out  chan string
+	ack  chan struct{}
+	done chan struct{}
 }
-func handleConn(conn net.Conn) {
-	in := make(chan string)
-	out := make(chan string)
-	ack := make(chan struct{})
-	done := make(chan struct{})
-	fmt.Fprintln(conn, "handleConn")
-	//go clientWriter(conn, out, ack)
 
-	go func(done chan struct{}, conn net.Conn, in chan string) {
-		defer close(done)
+func handleConn(conn net.Conn) {
+	defer conn.Close()
+	cm := ConnectionManager{
+		conn: conn,
+		in:   make(chan string),
+		out:  make(chan string),
+		ack:  make(chan struct{}),
+		done: make(chan struct{}),
+	}
+	cm.Init()
+	fmt.Fprintln(cm.conn, "1")
+	fmt.Fprintln(cm.conn, "2")
+	fmt.Fprintln(cm.conn, "3")
+
+	cm.out <- "sample output"
+	log.Println("out sended")
+	<-cm.ack
+	log.Println("ack")
+	log.Println(<-cm.in)
+	log.Println("cm.in")
+	log.Println(<-cm.in)
+	log.Println("cm.in")
+
+	log.Println(<-cm.in)
+	log.Println("cm.in")
+
+	<-cm.done
+	log.Println("done")
+}
+func (cm *ConnectionManager) Init() {
+	go func() {
+		defer close(cm.done)
 		for {
 			select {
-			case mes := <-out:
+			case mes := <-cm.out:
 				log.Println("out has received")
-				fmt.Fprintf(conn, mes)
-				ack <- struct{}{}
-			case <-done:
+				fmt.Fprintf(cm.conn, mes)
+				cm.ack <- struct{}{}
+			case <-cm.done:
 				return
 			}
 		}
-	}(done, conn, in)
-	go func(conn net.Conn, in chan string, ack chan struct{}) {
-		defer conn.Close()
-		input := bufio.NewScanner(conn)
+	}()
+	go func() {
+		defer cm.conn.Close()
+		input := bufio.NewScanner(cm.conn)
 		for input.Scan() {
-			in <- input.Text()
+			cm.in <- input.Text()
 			log.Println("in has inputted")
 		}
-	}(conn, in, ack)
-	out <- "sample output"
-	log.Println("out sended")
-	<-ack
-	log.Println("ack")
-}
-func clientWriter(conn net.Conn, out <-chan string, ack chan struct{}) {
-	//for {
-	//	select {
-	//	case msg := <-out:
-	//		fmt.Fprintf(conn, msg)
-	//		log.Println("out")
-	//		ack <- struct{}{}
-	//	}
-	//}
-	for msg := range out {
-		fmt.Fprintln(conn, msg)
-		ack <- struct{}{}
-	}
+	}()
+
 }

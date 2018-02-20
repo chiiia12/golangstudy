@@ -37,6 +37,7 @@ func (s *FTPServer) Run() {
 		go handleConn(conn)
 		go func() {
 			<-s.done
+			log.Println("done has received")
 			return
 		}()
 	}
@@ -45,6 +46,9 @@ func handleConn(c net.Conn) {
 	defer c.Close()
 
 	log.Println("connected")
+	fmt.Fprintf(c,"handleConn")
+	fmt.Fprintf(c,"handleConn")
+	fmt.Fprintf(c,"handleConn")
 	done := make(chan struct{})
 	s := NewSession(c, done)
 	s.Login()
@@ -136,6 +140,7 @@ func (c *CtrlConnManager) Run() {
 		for {
 			select {
 			case mes := <-c.in:
+				log.Println("in is received")
 				fmt.Fprintf(c.conn, mes)
 				c.ack <- struct{}{}
 			case <-c.done:
