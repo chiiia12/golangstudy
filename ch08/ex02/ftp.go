@@ -46,9 +46,9 @@ func handleConn(c net.Conn) {
 	defer c.Close()
 
 	log.Println("connected")
-	fmt.Fprintf(c,"handleConn")
-	fmt.Fprintf(c,"handleConn")
-	fmt.Fprintf(c,"handleConn")
+	fmt.Fprintln(c,"handleConn")
+	fmt.Fprintln(c,"handleConn")
+	fmt.Fprintln(c,"handleConn")
 	done := make(chan struct{})
 	s := NewSession(c, done)
 	s.Login()

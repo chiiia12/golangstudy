@@ -46,9 +46,11 @@ func handleConn(conn net.Conn) {
 		done: make(chan struct{}),
 	}
 	cm.Init()
-	fmt.Fprintln(cm.conn, "1")
-	fmt.Fprintln(cm.conn, "2")
-	fmt.Fprintln(cm.conn, "3")
+
+	fmt.Fprintf(cm.conn, "%d %s\n", 220, "Service ready for new user.")
+	fmt.Fprintf(cm.conn, "%d %s\n", 331, "User name okay, need password.")
+	fmt.Fprintf(cm.conn, "%d %s\n", 230, "User logged in, proceed.")
+
 
 	cm.out <- "sample output"
 	log.Println("out sended")
@@ -65,6 +67,13 @@ func handleConn(conn net.Conn) {
 	<-cm.done
 	log.Println("done")
 }
+
+const (
+	ReadyForUser = 220
+	NeedPassword = 331
+	UserLoggedIn = 230
+)
+
 func (cm *ConnectionManager) Init() {
 	go func() {
 		defer close(cm.done)
