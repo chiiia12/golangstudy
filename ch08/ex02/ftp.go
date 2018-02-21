@@ -2,160 +2,110 @@ package main
 
 import (
 	"net"
-	"fmt"
 	"log"
+	"fmt"
 	"bufio"
-	"strings"
 )
 
-type FTPServer struct {
-	host string
-	port int
-	done chan struct{}
-}
-
 func main() {
-	s := &FTPServer{
-		host: "localhost",
-		port: 8021,
-		done: make(chan struct{}),
-	}
-
-	s.Run()
-}
-func (s *FTPServer) Run() {
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.host, s.port))
+	listener, err := net.Listen("tcp", "localhost:8033")
+	done := make(chan struct{})
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
 	for {
+		log.Println("for")
 		conn, err := listener.Accept()
 		if err != nil {
-			log.Println(err)
+			log.Print(err)
 			continue
 		}
 		go handleConn(conn)
 		go func() {
-			<-s.done
-			log.Println("done has received")
+			<-done
 			return
 		}()
 	}
 }
-func handleConn(c net.Conn) {
-	defer c.Close()
 
-	log.Println("connected")
-	fmt.Fprintln(c,"handleConn")
-	fmt.Fprintln(c,"handleConn")
-	fmt.Fprintln(c,"handleConn")
-	done := make(chan struct{})
-	s := NewSession(c, done)
-	s.Login()
-}
-
-type CtrlConnManager struct {
+type ConnectionManager struct {
 	conn net.Conn
 	in   chan string
-	ack  chan struct{}
 	out  chan string
+	ack  chan struct{}
 	done chan struct{}
 }
 
-type Session struct {
-	ctrl *CtrlConnManager
-	done chan struct{}
-}
-
-func (s *Session) Close() {
-	close(s.done)
-}
-
-const (
-	ReadyForUser = 220
-	NeedPassword = 331
-	UserLoggedIn = 230
-)
-
-var users = map[string]string{
-	"user": "12345",
-}
-
-func (s *Session) Login() {
-	s.ctrl.SendMessage(ReadyForUser, "my go ftp server ready")
-	userseq := strings.Split(<-s.ctrl.out, " ")
-	if !strings.EqualFold(userseq[0], "USER") {
-		log.Println("invalid user name")
-		return
-	}
-
-	pass := users[userseq[1]]
-	s.ctrl.SendMessage(NeedPassword, "Send Password")
-
-	passseq := strings.Split(<-s.ctrl.out, " ")
-	if !strings.EqualFold(passseq[0], "PASS") {
-		log.Println("password error")
-		return
-	}
-
-	if pass != passseq[1] {
-		return
-	}
-	s.ctrl.SendMessage(UserLoggedIn, "LoginSuccessful")
-}
-
-func NewSession(conn net.Conn, done chan struct{}) *Session {
-	ctrl := NewCtrlConnManager(conn)
-	ctrl.Run()
-	s := &Session{
-		ctrl: ctrl,
-		done: done,
-	}
-	go func() {
-		<-ctrl.done
-		s.Close()
-	}()
-	return s
-}
-func NewCtrlConnManager(conn net.Conn) *CtrlConnManager {
-	return &CtrlConnManager{
+func handleConn(conn net.Conn) {
+	defer conn.Close()
+	cm := ConnectionManager{
 		conn: conn,
 		in:   make(chan string),
-		ack:  make(chan struct{}),
 		out:  make(chan string),
+		ack:  make(chan struct{}),
 		done: make(chan struct{}),
 	}
+	cm.Init()
+
+	cm.Login()
+
+	cm.out <- "sample output"
+	log.Println("out sended")
+	<-cm.ack
+	log.Println("ack")
+	log.Println(<-cm.in)
+	log.Println("cm.in")
+	log.Println(<-cm.in)
+	log.Println("cm.in")
+
+	log.Println(<-cm.in)
+	log.Println("cm.in")
+
+	<-cm.done
+	log.Println("done")
 }
-func (c *CtrlConnManager) Run() {
+
+
+func (cm *ConnectionManager) Init() {
 	go func() {
-		defer c.Close()
-		input := bufio.NewScanner(c.conn)
-		for input.Scan() {
-			c.out <- input.Text()
-		}
-		log.Println("Goint to closing")
-	}()
-	go func() {
-		defer c.conn.Close()
+		defer close(cm.done)
 		for {
 			select {
-			case mes := <-c.in:
-				log.Println("in is received")
-				fmt.Fprintf(c.conn, mes)
-				c.ack <- struct{}{}
-			case <-c.done:
+			case mes := <-cm.out:
+				log.Println("out has received")
+				fmt.Fprintf(cm.conn, mes)
+				cm.ack <- struct{}{}
+			case <-cm.done:
 				return
 			}
 		}
 	}()
+	go func() {
+		defer cm.conn.Close()
+		input := bufio.NewScanner(cm.conn)
+		for input.Scan() {
+			cm.in <- input.Text()
+			log.Println("in has inputted")
+		}
+	}()
+
 }
-func (c *CtrlConnManager) Close() {
-	close(c.done)
+func (cm *ConnectionManager) Login() {
+	cm.Send(ReadyForUser, "Service ready for new user")
+	inputUserName := <-cm.in
+	log.Println("input is ", inputUserName)
+	if inputUserName != UserName {
+		cm.Send(SyntaxError, "syntax error")
+	}
+	cm.Send(NeedPassword, "User name okay, need password.")
+	inputPassword := <-cm.in
+	log.Println(inputPassword)
+	if inputPassword != Password {
+		cm.Send(SyntaxError, "syntax error")
+	}
+	cm.Send(UserLoggedIn, "User logged in, proceed.")
 }
-func (c *CtrlConnManager) SendMessage(code int, mes string) {
-	c.Send(fmt.Sprintf("%d %s\n", code, mes))
+func (cm *ConnectionManager) Send(statusCode int, msg string) {
+	fmt.Fprintf(cm.conn, "%d %s\n", statusCode, msg)
 }
-func (c *CtrlConnManager) Send(mes string) {
-	c.in <- mes
-	<-c.ack
-}
+
