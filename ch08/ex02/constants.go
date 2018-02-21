@@ -16,4 +16,5 @@ const (
 	ClosingConnection = 226
 	CommandSucceeded  = 250
 	NotImplemented    = 502
+	ActionNotTaken    = 550
 )

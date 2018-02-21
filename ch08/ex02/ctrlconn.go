@@ -66,9 +66,15 @@ func (cm *CtrlConnectionManager) HandleCommand() {
 			cm.listFiles()
 			cm.Send(ClosingConnection, "Transfer complete")
 		case "CWD":
-			cm.dir = filepath.Join(cm.dir, command[1])
-			log.Println(cm.dir)
-			cm.Send(CommandSucceeded, fmt.Sprintf("%s is the current directory.", cm.dir))
+			files, _ := ioutil.ReadDir(cm.dir)
+			for _, v := range files {
+				if v.Name() == command[1] && v.IsDir() {
+					cm.dir = filepath.Join(cm.dir, command[1])
+					log.Println(cm.dir)
+					cm.Send(CommandSucceeded, fmt.Sprintf("%s is the current directory.", cm.dir))
+				}
+			}
+			cm.Send(ActionNotTaken, "No such file or directory.")
 		default:
 			cm.Send(NotImplemented, "command not implemented")
 		}
@@ -91,7 +97,7 @@ func (cm *CtrlConnectionManager) port(command []string) {
 }
 
 func (cm *CtrlConnectionManager) listFiles() {
-
+	log.Println(cm.dir)
 	files, err := ioutil.ReadDir(cm.dir)
 	if err != nil {
 		log.Println(err)

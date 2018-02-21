@@ -4,10 +4,17 @@ import (
 	"net"
 	"log"
 	"io"
+	"path/filepath"
+	"os"
 )
 
 func main() {
 	listener, err := net.Listen("tcp", "localhost:8033")
+
+	ex, _ := os.Executable()
+	exPath := filepath.Dir(ex)
+	log.Println(exPath)
+
 	done := make(chan struct{})
 	if err != nil {
 		log.Fatal(err)
@@ -46,4 +53,3 @@ func handleConn(conn net.Conn) {
 	cm.Login()
 	cm.HandleCommand()
 }
-
