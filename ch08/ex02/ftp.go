@@ -118,7 +118,7 @@ func (cm *ConnectionManager) HandleCommand() {
 			log.Println("ack has received")
 			close(dataConn.done)
 			log.Println("send transfer complete")
-			//ここが呼ばれない
+			dataConn.conn.Close()
 			cm.Send(ClosingConnection, "Transfer complete")
 			log.Println("after send")
 		case "CWD":
