@@ -98,19 +98,22 @@ func (cm *ConnectionManager) Init() {
 
 }
 func (cm *ConnectionManager) Login() {
-	fmt.Fprintf(cm.conn, "%d %s\n", 220, "Service ready for new user.")
+	cm.Send(ReadyForUser, "Service ready for new user")
 	inputUserName := <-cm.in
 	log.Println("input is ", inputUserName)
 	if inputUserName != UserName {
-		fmt.Fprintf(cm.conn, "%d %s\n", 500, "syntax error")
+		cm.Send(SyntaxError, "syntax error")
 	}
-	fmt.Fprintf(cm.conn, "%d %s\n", 331, "User name okay, need password.")
+	cm.Send(NeedPassword, "User name okay, need password.")
 	inputPassword := <-cm.in
 	log.Println(inputPassword)
 	if inputPassword != Password {
-		fmt.Fprintf(cm.conn, "%d %s\n", 500, "syntax error")
+		cm.Send(SyntaxError, "syntax error")
 	}
-	fmt.Fprintf(cm.conn, "%d %s\n", 230, "User logged in, proceed.")
+	cm.Send(UserLoggedIn, "User logged in, proceed.")
+}
+func (cm *ConnectionManager) Send(statusCode int, msg string) {
+	fmt.Fprintf(cm.conn, "%d %s\n", statusCode, msg)
 }
 
 const (
