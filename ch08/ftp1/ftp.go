@@ -47,10 +47,7 @@ func handleConn(conn net.Conn) {
 	}
 	cm.Init()
 
-	fmt.Fprintf(cm.conn, "%d %s\n", 220, "Service ready for new user.")
-	fmt.Fprintf(cm.conn, "%d %s\n", 331, "User name okay, need password.")
-	fmt.Fprintf(cm.conn, "%d %s\n", 230, "User logged in, proceed.")
-
+	cm.Login()
 
 	cm.out <- "sample output"
 	log.Println("out sended")
@@ -72,6 +69,8 @@ const (
 	ReadyForUser = 220
 	NeedPassword = 331
 	UserLoggedIn = 230
+	NotLoggedIn  = 530
+	SyntaxError  = 500
 )
 
 func (cm *ConnectionManager) Init() {
@@ -98,3 +97,23 @@ func (cm *ConnectionManager) Init() {
 	}()
 
 }
+func (cm *ConnectionManager) Login() {
+	fmt.Fprintf(cm.conn, "%d %s\n", 220, "Service ready for new user.")
+	inputUserName := <-cm.in
+	log.Println("input is ", inputUserName)
+	if inputUserName != UserName {
+		fmt.Fprintf(cm.conn, "%d %s\n", 500, "syntax error")
+	}
+	fmt.Fprintf(cm.conn, "%d %s\n", 331, "User name okay, need password.")
+	inputPassword := <-cm.in
+	log.Println(inputPassword)
+	if inputPassword != Password {
+		fmt.Fprintf(cm.conn, "%d %s\n", 500, "syntax error")
+	}
+	fmt.Fprintf(cm.conn, "%d %s\n", 230, "User logged in, proceed.")
+}
+
+const (
+	UserName = "USER user"
+	Password = "PASS 12345"
+)
