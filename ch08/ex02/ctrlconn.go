@@ -103,6 +103,7 @@ func (cm *CtrlConnectionManager) listFiles() {
 		log.Println(err)
 	}
 	for _, v := range files {
+		log.Printf("%s\t", v.Name())
 		p := fmt.Sprintf("%s\t%s\t%d\t%s\n", v.Mode(), v.ModTime(), v.Size(), v.Name())
 		cm.dataConn.out <- bytes.NewBufferString(p)
 		<-cm.dataConn.ack
