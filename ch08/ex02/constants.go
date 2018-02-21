@@ -15,4 +15,5 @@ const (
 	TransferStarting  = 125
 	ClosingConnection = 226
 	CommandSucceeded  = 250
+	NotImplemented    = 502
 )
