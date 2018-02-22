@@ -19,6 +19,7 @@ func main() {
 		fmt.Printf("%v\n", err)
 	}
 }
+
 //TODO:このままだと一階層以降が深ぼれいない。
 //チャンネルで同期する必要あり
 
@@ -50,7 +51,24 @@ func Extract(url string) interface{} {
 	}
 	return extractByType(resp, url, host+"/root.html", host, hostURL)
 }
+
+type info struct {
+	url     string
+	path    string
+	host    string
+	hostURL string
+}
+
 func extractByType(resp *http.Response, url, path, host, hostURL string) error {
+	for {
+		select {
+		case msg := <-info:
+			
+		case default:
+
+
+		}
+	}
 	contentType := extractContentType(resp.Header)
 	if contentType[0] != TextHTML {
 		f, err := os.Create(path)
@@ -70,6 +88,7 @@ func extractByType(resp *http.Response, url, path, host, hostURL string) error {
 	}
 
 	visitNode := func(n *html.Node) {
+		infoch := make(chan info)
 		if n.Type == html.ElementNode && n.Data == "a" {
 			for i, a := range n.Attr {
 				if a.Key != "href" {
@@ -83,9 +102,10 @@ func extractByType(resp *http.Response, url, path, host, hostURL string) error {
 					n.Attr[i].Val = "file:" + a.Val
 					if a.Val != "/" && a.Val != "#" && link.String() != hostURL {
 						if a.Val[0] == '/' {
-							go extractAsFile(link.String(), host+a.Val, host, hostURL)
+							go extractAsFile(link.String(), host+a.Val, host, hostURL, infoch)
+
 						} else {
-							go extractAsFile(link.String(), host+"/"+a.Val, host, hostURL)
+							go extractAsFile(link.String(), host+"/"+a.Val, host, hostURL, infoch)
 							//同期取る
 						}
 					}
@@ -100,7 +120,7 @@ func extractByType(resp *http.Response, url, path, host, hostURL string) error {
 				if err != nil {
 					continue
 				}
-				go extractAsFile(link.String(), host+"/"+a.Val, host, hostURL)
+				go extractAsFile(link.String(), host+"/"+a.Val, host, hostURL, infoch)
 				//同期とる
 			}
 		}
@@ -116,9 +136,10 @@ func extractByType(resp *http.Response, url, path, host, hostURL string) error {
 	html.Render(f, doc)
 	return nil
 }
+
 //ここの呼び出しをgoroutineにする
 //channelで
-func extractAsFile(url, path, host, hostUrl string) error {
+func extractAsFile(url, path, host, hostUrl string, ch chan info) error {
 	fmt.Printf("Contents of %s should be stored as %s\n", url, path)
 
 	resp, err := http.Get(url)
@@ -129,8 +150,14 @@ func extractAsFile(url, path, host, hostUrl string) error {
 		resp.Body.Close()
 		return fmt.Errorf("getting %s:%s", url, resp.Status)
 	}
-	return extractByType(resp, url, path, host, hostUrl)
-
+	ch <- info{
+		url:     url,
+		path:    path,
+		host:    host,
+		hostURL: hostUrl,
+	}
+	//return extractByType(resp, url, path, host, hostUrl)
+	return nil
 }
 func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
 	if pre != nil {
