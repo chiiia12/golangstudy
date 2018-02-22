@@ -17,4 +17,6 @@ const (
 	CommandSucceeded  = 250
 	NotImplemented    = 502
 	ActionNotTaken    = 550
+	FileStatus        = 213
+	ServiceClosing    = 221
 )

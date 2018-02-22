@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"bytes"
 	"bufio"
+	"os"
 )
 
 type CtrlConnectionManager struct {
@@ -75,6 +76,22 @@ func (cm *CtrlConnectionManager) HandleCommand() {
 				}
 			}
 			cm.Send(ActionNotTaken, "No such file or directory.")
+		case "SIZE":
+			filepath := filepath.Join(cm.dir, command[1])
+			file, err := os.OpenFile(filepath, os.O_RDWR, 0666)
+			if err != nil {
+				log.Println(err)
+			}
+			fileInfo, _ := file.Stat()
+			cm.Send(FileStatus, strconv.Itoa(int(fileInfo.Size())))
+			file.Close()
+		case "RETR":
+			cm.Send(TransferStarting, "transfer start")
+			cm.getFileInfo(command[1])
+			cm.Send(ClosingConnection, "Transfer complete")
+		case "QUIT":
+			cm.Send(ServiceClosing, "GoodBye")
+			cm.conn.Close()
 		default:
 			cm.Send(NotImplemented, "command not implemented")
 		}
@@ -132,4 +149,19 @@ func (cm *CtrlConnectionManager) Login() {
 func (cm *CtrlConnectionManager) Send(statusCode int, msg string) {
 	cm.out <- fmt.Sprintf("%d %s\n", statusCode, msg)
 	<-cm.ack
+}
+func (cm *CtrlConnectionManager) getFileInfo(filename string) {
+	filepath := filepath.Join(cm.dir, filename)
+	file, err := os.OpenFile(filepath, os.O_RDWR, 0777)
+	if err != nil {
+		log.Println(err)
+	}
+	fileInfo, _ := file.Stat()
+
+	cm.dataConn.out <- bytes.NewBufferString(strconv.Itoa(int(fileInfo.Size())))
+	<-cm.dataConn.ack
+
+	file.Close()
+	close(cm.dataConn.done)
+	cm.dataConn.conn.Close()
 }
