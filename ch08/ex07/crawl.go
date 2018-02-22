@@ -7,11 +7,12 @@ import (
 	"io"
 	"golang.org/x/net/html"
 	"strings"
+	"log"
 )
 
 const (
 	ContentType = "Content-Type"
-	TextHTML    = "text/htm"
+	TextHTML    = "text/html"
 )
 
 func main() {
@@ -21,6 +22,7 @@ func main() {
 }
 
 //TODO:このままだと一階層以降が深ぼれいない。
+//respがnilで落ちる・・・
 //チャンネルで同期する必要あり
 
 func Extract(url string) interface{} {
@@ -49,7 +51,17 @@ func Extract(url string) interface{} {
 		resp.Body.Close()
 		return fmt.Errorf("getting %s:%s", url, resp.Status)
 	}
-	return extractByType(resp, url, host+"/root.html", host, hostURL)
+	infochannel := make(chan info)
+	go func() {
+
+		infochannel <- info{
+			url:     url,
+			path:    host + "/root.html",
+			host:    host,
+			hostURL: hostURL,
+		}
+	}()
+	return extractByType(resp, url, host+"/root.html", host, hostURL, infochannel)
 }
 
 type info struct {
@@ -57,18 +69,10 @@ type info struct {
 	path    string
 	host    string
 	hostURL string
+	resp    *http.Response
 }
 
-func extractByType(resp *http.Response, url, path, host, hostURL string) error {
-	for {
-		select {
-		case msg := <-info:
-			
-		case default:
-
-
-		}
-	}
+func extractByType(resp *http.Response, url, path, host, hostURL string, ch chan info) error {
 	contentType := extractContentType(resp.Header)
 	if contentType[0] != TextHTML {
 		f, err := os.Create(path)
@@ -88,7 +92,6 @@ func extractByType(resp *http.Response, url, path, host, hostURL string) error {
 	}
 
 	visitNode := func(n *html.Node) {
-		infoch := make(chan info)
 		if n.Type == html.ElementNode && n.Data == "a" {
 			for i, a := range n.Attr {
 				if a.Key != "href" {
@@ -102,11 +105,15 @@ func extractByType(resp *http.Response, url, path, host, hostURL string) error {
 					n.Attr[i].Val = "file:" + a.Val
 					if a.Val != "/" && a.Val != "#" && link.String() != hostURL {
 						if a.Val[0] == '/' {
-							go extractAsFile(link.String(), host+a.Val, host, hostURL, infoch)
-
+							go extractAsFile(link.String(), host+a.Val, host, hostURL, ch)
+							msg := <-ch
+							log.Println("resp is ", msg.resp)
+							extractByType(msg.resp, msg.url, msg.path, msg.host, msg.hostURL, ch)
 						} else {
-							go extractAsFile(link.String(), host+"/"+a.Val, host, hostURL, infoch)
-							//同期取る
+							go extractAsFile(link.String(), host+"/"+a.Val, host, hostURL, ch)
+							msg := <-ch
+							log.Println("resp is ", msg.resp)
+							extractByType(msg.resp, msg.url, msg.path, msg.host, msg.hostURL, ch)
 						}
 					}
 				}
@@ -120,8 +127,10 @@ func extractByType(resp *http.Response, url, path, host, hostURL string) error {
 				if err != nil {
 					continue
 				}
-				go extractAsFile(link.String(), host+"/"+a.Val, host, hostURL, infoch)
-				//同期とる
+				go extractAsFile(link.String(), host+"/"+a.Val, host, hostURL, ch)
+				msg := <-ch
+				log.Println("resp is ", msg.resp)
+				extractByType(msg.resp, msg.url, msg.path, msg.host, msg.hostURL, ch)
 			}
 		}
 	}
@@ -144,19 +153,21 @@ func extractAsFile(url, path, host, hostUrl string, ch chan info) error {
 
 	resp, err := http.Get(url)
 	if err != nil {
+		log.Println("156:", err)
 		return err
 	}
 	if resp.StatusCode != http.StatusOK {
 		resp.Body.Close()
 		return fmt.Errorf("getting %s:%s", url, resp.Status)
 	}
+	log.Println("163L:resp is ", resp)
 	ch <- info{
 		url:     url,
 		path:    path,
 		host:    host,
 		hostURL: hostUrl,
+		resp:    resp,
 	}
-	//return extractByType(resp, url, path, host, hostUrl)
 	return nil
 }
 func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
