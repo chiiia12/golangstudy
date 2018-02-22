@@ -10,11 +10,6 @@ import (
 	"reflect"
 )
 
-type Element struct {
-	name string
-	attr []xml.Attr
-}
-
 type Target struct {
 	name string
 	attr []Attr
@@ -26,7 +21,6 @@ type Attr struct {
 
 func main() {
 	dec := xml.NewDecoder(os.Stdin)
-	//var stack []string
 	var stack2 []Target
 	var args = os.Args[1:]
 	fmt.Printf("%v\n", args)
@@ -42,7 +36,6 @@ func main() {
 		}
 		switch tok := tok.(type) {
 		case xml.StartElement:
-			//stack = append(stack, tok.Name.Local)
 			var attr []Attr
 			for _, v := range tok.Attr {
 				a := Attr{
@@ -53,13 +46,9 @@ func main() {
 			}
 			stack2 = append(stack2, Target{name: tok.Name.Local, attr: attr})
 		case xml.EndElement:
-			//stack = stack[:len(stack)-1]
 			stack2 = stack2[:len(stack2)-1]
 		case xml.CharData:
-			//if containsAll(stack, os.Args[1:]) {
-			//	fmt.Printf("%s:%s\n", strings.Join(stack, " "), tok)
-			//}
-			if containsAll2(stack2, targetList) {
+			if containsAll(stack2, targetList) {
 				fmt.Printf("%s:%s\n", strings.Join(toStringArray(stack2), " "), tok)
 			}
 		}
@@ -93,19 +82,7 @@ func parseArg(args []string) []Target {
 	}
 	return targetList
 }
-func containsAll(x, y []string) bool {
-	for len(y) <= len(x) {
-		if len(y) == 0 {
-			return true
-		}
-		if x[0] == y[0] {
-			y = y[1:]
-		}
-		x = x[1:]
-	}
-	return false
-}
-func containsAll2(x, y []Target) bool {
+func containsAll(x, y []Target) bool {
 	for len(y) <= len(x) {
 		if len(y) == 0 {
 			return true
