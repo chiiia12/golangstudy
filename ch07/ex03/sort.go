@@ -14,6 +14,8 @@ type tree struct {
 	left, right *tree
 }
 
+//普通は戻り値をstringで返すべき
+//左から出さないとソートされない
 func (t *tree) String() {
 	fmt.Println(t.value)
 	if t.right != nil {

@@ -17,6 +17,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	//ここが10秒たった後も生きてる
 	for {
 		conn, err := l.Accept()
 		if err != nil {
@@ -41,11 +42,12 @@ func handleConn(c net.Conn) {
 		fmt.Fprintln(c, "before wg.Wait")
 		wg.Wait()
 		fmt.Fprintln(c, "after wg.Wait")
-		tcpConn, ok := c.(*net.TCPConn)
-		if !ok {
-			log.Fatal("this is not tcp connection")
-		}
-		tcpConn.CloseWrite()
+		//tcpConn, ok := c.(*net.TCPConn)
+		//if !ok {
+		//	log.Fatal("this is not tcp connection")
+		//}
+		//tcpConn.CloseWrite()
+		c.Close()
 	}()
 }
 func watch(c net.Conn, alive chan string) {

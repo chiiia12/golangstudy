@@ -17,7 +17,7 @@ type dollars float32
 type database map[string]dollars
 
 func (db database) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "url is ", req.URL)
+	fmt.Fprintf(w, "url is %v", req.URL)
 	switch req.URL.Path {
 	case "/create":
 		item := req.URL.Query().Get("item")

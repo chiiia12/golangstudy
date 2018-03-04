@@ -20,3 +20,5 @@ func main() {
 		fmt.Println(exp.Eval(env))
 	}
 }
+
+//変数

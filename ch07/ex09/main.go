@@ -8,6 +8,8 @@ import (
 	"html/template"
 )
 
+//webServerにするの忘れてた
+//linkでquery parameterを追加していく
 func main() {
 	title := func(t1 *Track, t2 *Track) bool {
 		return t1.Title < t2.Title

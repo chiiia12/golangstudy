@@ -8,6 +8,11 @@ import (
 	"time"
 )
 
+//table sorter
+//currentSorterとprevSorterを持つstructを持つなど
+//sort.Stableは同じ値のときにソート順を保持しておく
+// quicksort 12以下だとshellsort→中央値取るアルゴリズムでmedian of median
+
 func main() {
 	title := func(t1 *Track, t2 *Track) bool {
 		return t1.Title < t2.Title

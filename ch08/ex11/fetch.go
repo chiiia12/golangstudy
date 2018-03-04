@@ -26,6 +26,7 @@ func canceled() bool {
 	}
 }
 
+//実質キャンセルしてるだけ。mainを終わらせてるからキャンセルになってるだけ。
 func main() {
 	for _, url := range os.Args[1:] {
 		go func() {

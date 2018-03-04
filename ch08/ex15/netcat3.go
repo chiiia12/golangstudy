@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+//バッファも増やすとなお良い
 func main() {
 	conn, err := net.Dial("tcp", "localhost:8000")
 	if err != nil {

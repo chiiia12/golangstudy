@@ -35,3 +35,6 @@ func (r *SampleReader) Read(p []byte) (n int, err error) {
 	r.len = len(r.s)
 	return len(p), nil
 }
+//Readerのテスト
+//空バッファで境界値
+//大きいバッファと+1で検証

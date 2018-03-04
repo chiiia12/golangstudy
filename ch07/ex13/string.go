@@ -29,3 +29,5 @@ func (c call) String() string {
 	}
 	return fmt.Sprintf("%v(%v)", c.fn, strings.Join(joinlist, ","))
 }
+
+//testで同じ構文ツリーになることを検査しないといけない
