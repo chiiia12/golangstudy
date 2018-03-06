@@ -8,15 +8,19 @@ import (
 	"io"
 	"io/ioutil"
 	"archive/tar"
+	"image"
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
-	//err := unZip("./sample.zip", "./out")
-	err := unTar("./sample.tar", "./out")
+	err := unZip("./sample.zip", "./out")
+	err = unTar("./sample.tar", "./out")
 	if err != nil {
 		log.Println("unTar return err", err)
 	}
 
+	sql.Open("mysql","dbname")
 }
 func unZip(input, output string) error {
 	r, err := zip.OpenReader(input)
