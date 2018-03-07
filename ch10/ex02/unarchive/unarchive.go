@@ -8,7 +8,7 @@ type UnArchive struct {
 //file種別を持っておく配列を持っておく
 var driver []string
 
-func (file *UnArchive) Read(name string) {
+func Read(name string) {
 	//配列から取り出して処理する
 	//なかったらエラー吐く
 	for _, v := range driver {
