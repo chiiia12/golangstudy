@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"io/ioutil"
 	"archive/tar"
-	"github.com/chiiia12/golangstudy/ch10/ex02/unarchive"
+	"../unarchive"
 )
 
 func init() {

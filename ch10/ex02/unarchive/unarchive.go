@@ -1,6 +1,9 @@
 package unarchive
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 type UnArchive struct {
 }
@@ -14,6 +17,7 @@ func Read(name string) {
 	for _, v := range driver {
 		if v == name {
 			//何かする
+			log.Println("見つかった")
 			return
 		}
 	}
@@ -23,4 +27,5 @@ func Read(name string) {
 func Register(name string) {
 	//配列に登録
 	driver = append(driver, name)
+	log.Println(driver)
 }
