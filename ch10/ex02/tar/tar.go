@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"io/ioutil"
 	"archive/tar"
-	"../unarchive"
+	"../driver"
 )
 
 type TarUnArchiver struct {
@@ -17,9 +17,9 @@ type TarUnArchiver struct {
 
 func init() {
 	//登録する
-	unarchive.Register("tar")
+	driver.Register("tar", &TarUnArchiver{})
 }
-func (t *TarUnArchiver) UnArchive() {
+func (t *TarUnArchiver) UnArchive(input, output string) {
 	unTar(t.inputDir, t.outputDir)
 }
 

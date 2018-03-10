@@ -7,7 +7,8 @@ import (
 	"io"
 	"io/ioutil"
 	"archive/zip"
-	"../unarchive"
+	"../driver"
+	"fmt"
 )
 
 type ZipUnArchiver struct {
@@ -17,10 +18,10 @@ type ZipUnArchiver struct {
 
 func init() {
 	//登録する
-	unarchive.Register("zip")
+	driver.Register("zip", &ZipUnArchiver{})
 }
 
-func (z *ZipUnArchiver) UnArchive() {
+func (z *ZipUnArchiver) UnArchive(input, output string) {
 	unZip(z.inputDir, z.outputDir)
 }
 
@@ -33,9 +34,10 @@ func unZip(input, output string) error {
 	defer r.Close()
 
 	for _, f := range r.File {
+		log.Println("file is ", f)
 		rc, err := f.Open()
 		if err != nil {
-			return err
+			return fmt.Errorf("f.Open return error.%v", err)
 		}
 		defer rc.Close()
 		if f.FileInfo().IsDir() {
@@ -45,11 +47,11 @@ func unZip(input, output string) error {
 			buf := make([]byte, f.UncompressedSize64)
 			_, err := io.ReadFull(rc, buf)
 			if err != nil {
-				return err
+				return fmt.Errorf("io.ReadFull return error.%v", err)
 			}
 			path := filepath.Join(output, f.Name)
 			if err = ioutil.WriteFile(path, buf, f.Mode()); err != nil {
-				return err
+				return fmt.Errorf("ioutil.WriteFile return error.%v", err)
 			}
 		}
 	}

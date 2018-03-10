@@ -1,18 +1,19 @@
 package main
 
 import (
-	_ "github.com/go-sql-driver/mysql"
-	_ "./tar"
-	_ "./zip"
-	"./unarchive"
 	"fmt"
+	"./driver"
+	_ "./zip"
+	_ "./tar"
 )
 
+const OUTPUT_DIR = "./out"
+
 func main() {
-	unarchiver, err := unarchive.OpenUnArchiver("zip", "./sample.zip")
+	unzip, err := driver.OpenUnArchiver("zip", "./sample.zip")
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("OpenUnArchiver has error.", err)
 	}
-	unarchiver.UnArchive()
+	unzip.UnArchive("./sample.zip", OUTPUT_DIR)
 
 }
