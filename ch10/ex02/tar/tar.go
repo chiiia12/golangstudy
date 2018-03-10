@@ -10,10 +10,19 @@ import (
 	"../unarchive"
 )
 
+type TarUnArchiver struct {
+	inputDir  string
+	outputDir string
+}
+
 func init() {
 	//登録する
 	unarchive.Register("tar")
 }
+func (t *TarUnArchiver) UnArchive() {
+	unTar(t.inputDir, t.outputDir)
+}
+
 func unTar(in, out string) error {
 	file, _ := os.Open(in)
 	tarReader := tar.NewReader(file)

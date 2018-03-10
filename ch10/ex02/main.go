@@ -5,9 +5,14 @@ import (
 	_ "./tar"
 	_ "./zip"
 	"./unarchive"
+	"fmt"
 )
 
 func main() {
-	unarchive.Read("zip")
+	unarchiver, err := unarchive.OpenUnArchiver("zip", "./sample.zip")
+	if err != nil {
+		fmt.Println(err)
+	}
+	unarchiver.UnArchive()
 
 }

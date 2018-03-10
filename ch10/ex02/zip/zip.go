@@ -10,9 +10,18 @@ import (
 	"../unarchive"
 )
 
+type ZipUnArchiver struct {
+	inputDir  string
+	outputDir string
+}
+
 func init() {
 	//登録する
 	unarchive.Register("zip")
+}
+
+func (z *ZipUnArchiver) UnArchive() {
+	unZip(z.inputDir, z.outputDir)
 }
 
 func unZip(input, output string) error {
