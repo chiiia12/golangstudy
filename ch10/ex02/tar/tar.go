@@ -11,8 +11,6 @@ import (
 )
 
 type TarUnArchiver struct {
-	inputDir  string
-	outputDir string
 }
 
 func init() {
@@ -20,7 +18,7 @@ func init() {
 	driver.Register("tar", &TarUnArchiver{})
 }
 func (t *TarUnArchiver) UnArchive(input, output string) {
-	unTar(t.inputDir, t.outputDir)
+	unTar(input, output)
 }
 
 func unTar(in, out string) error {

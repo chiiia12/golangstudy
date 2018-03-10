@@ -12,8 +12,6 @@ import (
 )
 
 type ZipUnArchiver struct {
-	inputDir  string
-	outputDir string
 }
 
 func init() {
@@ -22,13 +20,13 @@ func init() {
 }
 
 func (z *ZipUnArchiver) UnArchive(input, output string) {
-	unZip(z.inputDir, z.outputDir)
+	unZip(input, output)
 }
 
 func unZip(input, output string) error {
 	r, err := zip.OpenReader(input)
 	if err != nil {
-		log.Println(err)
+		log.Println("31:", err)
 		return err
 	}
 	defer r.Close()
@@ -42,6 +40,7 @@ func unZip(input, output string) error {
 		defer rc.Close()
 		if f.FileInfo().IsDir() {
 			path := filepath.Join(output, f.Name)
+			output = path
 			os.MkdirAll(path, f.Mode())
 		} else {
 			buf := make([]byte, f.UncompressedSize64)
@@ -50,6 +49,7 @@ func unZip(input, output string) error {
 				return fmt.Errorf("io.ReadFull return error.%v", err)
 			}
 			path := filepath.Join(output, f.Name)
+			output = path
 			if err = ioutil.WriteFile(path, buf, f.Mode()); err != nil {
 				return fmt.Errorf("ioutil.WriteFile return error.%v", err)
 			}
