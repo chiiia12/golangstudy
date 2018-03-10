@@ -10,11 +10,15 @@ import (
 const OUTPUT_DIR = "./out"
 
 func main() {
-	//unzip, err := driver.OpenUnArchiver("zip", "./sample.zip")
-	unzip, err := driver.OpenUnArchiver("tar")
+	//unzip, err := driver.OpenUnArchiver("zip")
+	//if err != nil {
+	//	fmt.Println("OpenUnArchiver has error.", err)
+	//}
+	//unzip.UnArchive("./sample.zip", OUTPUT_DIR)
+
+	untar, err := driver.OpenUnArchiver("tar")
 	if err != nil {
 		fmt.Println("OpenUnArchiver has error.", err)
 	}
-	unzip.UnArchive("./sample.zip", OUTPUT_DIR)
-
+	untar.UnArchive("./sample.tar", OUTPUT_DIR)
 }
