@@ -5,20 +5,21 @@ import (
 	"./driver"
 	_ "./zip"
 	_ "./tar"
+	"flag"
 )
 
 const OUTPUT_DIR = "./out"
 
-func main() {
-	//unzip, err := driver.OpenUnArchiver("zip")
-	//if err != nil {
-	//	fmt.Println("OpenUnArchiver has error.", err)
-	//}
-	//unzip.UnArchive("./sample.zip", OUTPUT_DIR)
+var (
+	filetype = flag.String("type", "zip", "input filetype. default is zip")
+	filename = flag.String("filename", "", "input filename.")
+)
 
-	untar, err := driver.OpenUnArchiver("tar")
+func main() {
+	flag.Parse()
+	unarchiver, err := driver.OpenUnArchiver(*filetype)
 	if err != nil {
 		fmt.Println("OpenUnArchiver has error.", err)
 	}
-	untar.UnArchive("./sample.tar", OUTPUT_DIR)
+	unarchiver.UnArchive(*filename, OUTPUT_DIR)
 }
