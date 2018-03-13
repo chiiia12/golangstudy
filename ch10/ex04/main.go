@@ -14,18 +14,17 @@ type ImportData struct {
 
 var pac = flag.String("package", "", "input package name. ex) -package hash")
 
-var dependencyMap = make(map[string]struct{})
-
 func main() {
-	getGoList(*pac)
+	var dependencyMap = make(map[string]struct{})
+	getGoList(*pac, &dependencyMap)
 	for k, _ := range dependencyMap {
-		getGoList(k)
+		getGoList(k, &dependencyMap)
 	}
 	for k, _ := range dependencyMap {
 		fmt.Printf("%v\n", k)
 	}
 }
-func getGoList(pacName string) {
+func getGoList(pacName string, dependencyMap *map[string]struct{}) {
 	out, err := exec.Command("go", "list", "-json", pacName).Output()
 	if err != nil {
 		log.Println(err)
@@ -33,6 +32,6 @@ func getGoList(pacName string) {
 	data := new(ImportData)
 	json.Unmarshal(out, data)
 	for _, d := range data.Deps {
-		dependencyMap[d] = struct{}{}
+		(*dependencyMap)[d] = struct{}{}
 	}
 }
