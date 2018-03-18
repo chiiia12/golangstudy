@@ -35,23 +35,23 @@ func TestCharCount(t *testing.T) {
 		reader := strings.NewReader(test.samplestr)
 		counts, utflen, invalid := charcount(reader)
 		if len(counts) != len(test.counts) {
-			t.Errorf("counts's length is not right.result is %v but actual is %v.", len(counts), len(test.counts))
+			t.Errorf("len(counts)=%v. want %v", len(counts), len(test.counts))
 		}
 		for k, v := range test.counts {
 			if counts[k] != v {
-				t.Errorf("key counts[%v] is not %v. actual is %v", k, v, counts[k])
+				t.Errorf("counts[%v]=%v want %v", k, v, counts[k])
 			}
 		}
 		if len(utflen) != len(test.utflen) {
-			t.Errorf("error.utflen result is %v.but actual is %v", len(utflen), len(test.utflen))
+			t.Errorf("len(utflen)=%v want %v ", len(utflen), len(test.utflen))
 		}
 		for i, v := range test.utflen {
 			if utflen[i] != v {
-				t.Errorf("error.utflen[%v] is not %v.actual is %v", i, v, utflen[i])
+				t.Errorf("utflen[%v] = %v want %v", i, v, utflen[i])
 			}
 		}
 		if invalid != test.invalid {
-			t.Errorf("error.invalid is not %v.actual is %v", invalid, test.invalid)
+			t.Errorf("invalid = %v want %v", invalid, test.invalid)
 		}
 	}
 }
