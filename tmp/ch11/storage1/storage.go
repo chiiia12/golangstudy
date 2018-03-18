@@ -6,6 +6,14 @@ import (
 	"log"
 )
 
+var notifyUser = func(username, msg string) {
+	auth := smtp.PlainAuth("", sender, password, hostname)
+	err := smtp.SendMail(hostname+":587", auth, sender, []string{username}, []byte(msg))
+	if err != nil {
+		log.Printf("smtp.SendEmail(%s) failed:%s", username, err)
+	}
+}
+
 func bytesInUse(username string) int64 {
 	return 0
 }
@@ -24,9 +32,5 @@ func CheckQuota(username string) {
 		return
 	}
 	msg := fmt.Sprintf(template, used, percent)
-	auth := smtp.PlainAuth("", sender, password, hostname)
-	err := smtp.SendMail(hostname+":587", auth, sender, []string{username}, []byte(msg))
-	if err != nil {
-		log.Printf("smtp.SendMail(%s) failed: %s", username, err)
-	}
+	notifyUser(username, msg)
 }
