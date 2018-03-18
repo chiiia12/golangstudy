@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestAdd(t *testing.T) {
+func TestIntSetAdd(t *testing.T) {
 	var x IntSet
 	x.Add(1)
 	x.Add(2)
@@ -14,7 +14,7 @@ func TestAdd(t *testing.T) {
 		t.Errorf("x.String() = %v. want {1 2 3 200}", actual)
 	}
 }
-func TestHas(t *testing.T) {
+func TestIntSetHas(t *testing.T) {
 	var x IntSet
 	x.Add(1)
 	x.Add(2)
@@ -25,7 +25,7 @@ func TestHas(t *testing.T) {
 	}
 }
 
-func TestUnionWith(t *testing.T) {
+func TestIntSetUnionWith(t *testing.T) {
 	var x, y IntSet
 	x.Add(1)
 	x.Add(2)
