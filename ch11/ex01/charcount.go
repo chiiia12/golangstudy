@@ -44,12 +44,16 @@ var isFunctions = map[string]func(rune) bool{
 }
 
 func main() {
+	charcount(os.Stdin)
+}
+
+func charcount(reader io.Reader) (co map[rune]int, ul [utf8.UTFMax + 1]int, inv int) {
 	counts := make(map[rune]int)       // counts of Unicode chars
 	categories := make(map[string]int) // counts of categories
 	var utflen [utf8.UTFMax + 1]int    // count of lengths of UTF-8 encodings
 	invalid := 0                       // count of invalid UTF-8 characters
+	in := bufio.NewReader(reader)
 
-	in := bufio.NewReader(os.Stdin)
 	for {
 		c, n, err := in.ReadRune() // returns rune, nbytes, error
 		if err == io.EOF {
@@ -94,4 +98,5 @@ func main() {
 	for k, n := range categories {
 		fmt.Printf("%11s\t%d\n", k, n)
 	}
+	return counts, utflen, invalid
 }
