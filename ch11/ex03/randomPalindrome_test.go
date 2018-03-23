@@ -32,18 +32,20 @@ func TestRandomPalindromes(t *testing.T) {
 }
 
 func randomNotPalindrome(rng *rand.Rand) string {
-	n := rng.Intn(600) + 2
+	n := rng.Intn(25) + 2
 	runes := make([]rune, n)
-	for i := 0; i < n; {
+	for i := 0; i < (n+1)/2; {
 		r := rune(rng.Intn(0x1000))
 		if unicode.IsLetter(r) {
 			runes[i] = r
+			for {
+				r2 := rune(rng.Intn(0x1000))
+				if unicode.IsLetter(r2) && r2 != r {
+					runes[n-1-i] = r2
+					break
+				}
+			}
 			i++
-		}
-	}
-	for i := 0; i < n; i++ {
-		if runes[i] == runes[n-1-i] {
-			return randomNotPalindrome(rng)
 		}
 	}
 	return string(runes)
