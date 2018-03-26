@@ -33,6 +33,7 @@ func (memo *Memo) Get(key string, done chan struct{}) (interface{}, error) {
 	response := make(chan result)
 	memo.requests <- request{key, response}
 	res := <-response
+	//ここでdoneの受取やっても全部やった後に判断してるから実際はキャンセルできていない、
 	select {
 	case <-done:
 		fmt.Println("done has received")

@@ -24,6 +24,15 @@ func Withdraw(amount int) bool {
 	return <-success
 }
 
+//バッファありだとtellerで読み出すまで次行かないけどバッファ1以上持ってると自分で書き込んで自分で読めるので
+//func Withdraw(amount int)bool{
+//	withdraws <-withdrawResult{}
+//	result:=<-withdraws
+//}
+//二人以上同時にwithdraw動かした時に大丈夫か。
+//自分の結果が返ってくる保障があるか
+//その場でチャンネルを作ってこのチャンネルに返してねを指定しなくてはいけない
+
 func teller() {
 	var balance int //balanceはtellerゴルーチンに閉じ込められている
 	for {

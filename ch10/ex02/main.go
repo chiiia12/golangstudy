@@ -15,6 +15,11 @@ var (
 	filename = flag.String("filename", "", "input filename.")
 )
 
+//ファイルタイプを指定しなくてもよしなに読み込んでくれるものが良い→汎用的
+//読み込み関数なので、展開するとはちょっと違う
+//zipはread closer
+//tarはr.Peek/マジックバイト
+
 func main() {
 	flag.Parse()
 	unarchiver, err := driver.OpenUnArchiver(*filetype)

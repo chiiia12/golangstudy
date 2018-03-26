@@ -51,9 +51,20 @@ func randomNotPalindrome(rng *rand.Rand) string {
 	return string(runes)
 }
 
+//これだと一回でも対照なペアがあったらはじくかなり厳しい条件になってる。
+//一個でも非対称なペアをみつけたら回文じゃないとして返しちゃえばよかった
+//for {
+//	if r[i]==r[n-1-i]{
+//		return randomNotPalindrome()
+//	}
+//}
+//return string(rune)
+
 func TestRandomNotPalindromes(t *testing.T) {
 	seed := time.Now().UTC().UnixNano()
-	t.Logf("Randome seed:%d", seed)
+	//seedを定数にしちゃえばいつも同じ数字が得られる→debugに使える
+	//randomのテストは再現できなくなるのでseedの出力は必須。
+	t.Logf("Random seed:%d", seed)
 	rng := rand.New(rand.NewSource(seed))
 
 	count := 0;
@@ -62,7 +73,7 @@ func TestRandomNotPalindromes(t *testing.T) {
 
 		if IsPalindrome(p) {
 			count++
-			t.Errorf("IsPalindrome(%v)=true", p)
+			t.Errorf("IsPalindrome(%v)=true,%v", p, []rune(p))
 		}
 	}
 	t.Log("error count is", count)

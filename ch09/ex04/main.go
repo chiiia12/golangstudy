@@ -40,3 +40,6 @@ func main() {
 //goroutineCount is 494 costtime is 7.522µs
 //goroutineCount is 495 costtime is 1.717µs
 
+//データをパイプラインで流すのにどれくらい時間がかかるか。
+//データを受け渡しするのにどれくらい時間がかかるかを知りたい
+//goroutinesは結局何個作ればええんや

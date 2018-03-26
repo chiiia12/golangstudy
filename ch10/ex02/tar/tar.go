@@ -21,6 +21,7 @@ func (t *TarUnArchiver) UnArchive(input, output string) {
 	unTar(input, output)
 }
 
+//ちゃんと読めてなさそう
 func unTar(in, out string) error {
 	file, _ := os.Open(in)
 	tarReader := tar.NewReader(file)

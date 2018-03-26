@@ -6,9 +6,17 @@ import (
 	"math/rand"
 )
 
+//var だけで中身もかける条件なんだっけ。
+var seed = time.Now().UTC().UnixNano()
+
+//こうも書ける
+//func init() {
+//	seed = time.Now().UTC().UnixNano()
+//	log.Println("seed is initialized.", seed)
+//}
+
 func BenchmarkIntSet_Add(b *testing.B) {
 	var x IntSet
-	seed := time.Now().UTC().UnixNano()
 	rng := rand.New(rand.NewSource(seed))
 	for i := 0; i < b.N; i++ {
 		num := rng.Intn(0x1000)
@@ -17,7 +25,6 @@ func BenchmarkIntSet_Add(b *testing.B) {
 }
 func BenchmarkIntSet_UnionWith(b *testing.B) {
 	var x, y IntSet
-	seed := time.Now().UTC().UnixNano()
 	rng := rand.New(rand.NewSource(seed))
 	num1 := rng.Intn(0x1000)
 	num2 := rng.Intn(0x1000)
@@ -29,7 +36,6 @@ func BenchmarkIntSet_UnionWith(b *testing.B) {
 }
 func BenchmarkIntSet_Has(b *testing.B) {
 	var x IntSet
-	seed := time.Now().UTC().UnixNano()
 	rng := rand.New(rand.NewSource(seed))
 	for i := 0; i < b.N; i++ {
 		num := rng.Intn(0x1000)
@@ -38,7 +44,6 @@ func BenchmarkIntSet_Has(b *testing.B) {
 }
 func BenchmarkMapSet_Add(b *testing.B) {
 	var x MapIntSet
-	seed := time.Now().UTC().UnixNano()
 	rng := rand.New(rand.NewSource(seed))
 	for i := 0; i < b.N; i++ {
 		num := rng.Intn(0x1000)
@@ -47,7 +52,6 @@ func BenchmarkMapSet_Add(b *testing.B) {
 }
 func BenchmarkMapSet_UnionWith(b *testing.B) {
 	var x, y MapIntSet
-	seed := time.Now().UTC().UnixNano()
 	rng := rand.New(rand.NewSource(seed))
 	num1 := rng.Intn(0x1000)
 	num2 := rng.Intn(0x1000)
@@ -59,7 +63,6 @@ func BenchmarkMapSet_UnionWith(b *testing.B) {
 }
 func BenchmarkMapSet_Has(b *testing.B) {
 	var x MapIntSet
-	seed := time.Now().UTC().UnixNano()
 	rng := rand.New(rand.NewSource(seed))
 	for i := 0; i < b.N; i++ {
 		num := rng.Intn(0x1000)
