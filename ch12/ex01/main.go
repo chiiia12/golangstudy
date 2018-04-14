@@ -18,6 +18,9 @@ func main() {
 	m := make(map[Sample]string)
 	m[Sample{3}] = "one"
 	Display("m", m)
+
+	a := []string{"hoge", "fuga", "piyo"}
+	Display("a", a)
 }
 
 func Display(name string, x interface{}) {
@@ -75,10 +78,19 @@ func formatAtom(v reflect.Value) string {
 	case reflect.Chan, reflect.Func, reflect.Ptr, reflect.Slice, reflect.Map:
 		return v.Type().String() + " 0x" + strconv.FormatUint(uint64(v.Pointer()), 16)
 	case reflect.Struct:
-		//TODO:
+		var str string
+		str += v.Type().Name()
+		for i := 0; i < v.NumField(); i++ {
+			str += fmt.Sprintf(" %s:%s", v.Type().Field(i).Name, formatAtom(v.Field(i)))
+		}
+		return str
 	case reflect.Array:
-		//TODO:
-	default: //reflect.Array,reflect.Struct,reflect.Interface
+		var str string
+		for i := 0; i < v.Len(); i++ {
+			str += fmt.Sprintf("index[%v]:%v\n", v.Index(i).Type().String());
+		}
+		return str
+	default: //reflect.Interface
 		return v.Type().String() + " value"
 	}
 }
