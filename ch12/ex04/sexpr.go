@@ -25,6 +25,7 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 		}
 		fmt.Fprintf(buf, "%v", output)
 	case reflect.Interface:
+		buf.WriteByte('\n')
 		buf.WriteByte('(')
 		if v.Type().Name() == "" {
 			fmt.Fprintf(buf, "%q ", v.Elem().Type().String())
@@ -48,6 +49,12 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 			if err := encode(buf, v.Index(i)); err != nil {
 				return err
 			}
+			if i != v.Len()-1 {
+				buf.WriteByte('\n')
+				buf.WriteByte('\t')
+				buf.WriteByte('\t')
+				buf.WriteByte(' ')
+			}
 		}
 		buf.WriteByte(')')
 	case reflect.Struct:
@@ -56,7 +63,11 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 			if i > 0 {
 				buf.WriteByte(' ')
 			}
-			fmt.Fprintf(buf, "(%s ", v.Type().Field(i).Name)
+			if i != 0 {
+				fmt.Fprintf(buf, "\n (%s ", v.Type().Field(i).Name)
+			} else {
+				fmt.Fprintf(buf, "(%s ", v.Type().Field(i).Name)
+			}
 			if err := encode(buf, v.Field(i)); err != nil {
 				return err
 			}
@@ -69,6 +80,13 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 			if i > 0 {
 				buf.WriteByte(' ')
 			}
+			if i != 0 {
+				buf.WriteByte('\n')
+				buf.WriteByte('\t')
+				buf.WriteByte('\t')
+				buf.WriteByte(' ')
+			}
+
 			buf.WriteByte('(')
 			if err := encode(buf, key); err != nil {
 				return err
