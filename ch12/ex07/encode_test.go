@@ -42,4 +42,5 @@ func TestEncode(t *testing.T) {
 	encoder := NewEncoder(buf)
 	encoder.Encode(strangelove)
 	fmt.Println(buf.String())
+	//streamになってるのか…？
 }

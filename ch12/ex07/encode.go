@@ -1,7 +1,6 @@
 package sexpr
 
 import (
-	"bytes"
 	"reflect"
 	"fmt"
 	"io"
@@ -9,17 +8,11 @@ import (
 
 type Encoder struct {
 	w          io.Writer
-	err        error
-	escapeHTML bool
-
-	indentBuf    *bytes.Buffer
-	indentPrefix string
-	indentValue  string
 }
 
 // NewEncoder returns a new encoder that writes to w.
 func NewEncoder(w io.Writer) *Encoder {
-	return &Encoder{w: w, escapeHTML: true}
+	return &Encoder{w: w}
 }
 func (enc *Encoder) Encode(v interface{}) error {
 	if err := encode(enc.w, reflect.ValueOf(v)); err != nil {
