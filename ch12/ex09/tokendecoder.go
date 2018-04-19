@@ -42,6 +42,7 @@ func (d *Decoder) Token() (Token, error) {
 	switch d.lex.token {
 	case scanner.Ident:
 		name := d.lex.text()
+		d.lex.next()
 		return Symbol{name}, nil
 	case scanner.String:
 		s, _ := strconv.Unquote(d.lex.text())
@@ -69,9 +70,9 @@ func (lex *lexer) text() string {
 	return lex.scan.TokenText()
 }
 func (lex *lexer) consume(want rune) {
+
 	if lex.token != want {
 		panic(fmt.Sprintf("got %q, want %q", lex.text(), want))
 	}
 	lex.next()
 }
-
